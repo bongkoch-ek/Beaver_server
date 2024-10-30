@@ -12,7 +12,7 @@ exports.auth = async (req, res, next) => {
 
     jwt.verify(token, process.env.JWT_SECRET, (err, decode) => {
       if (err) {
-        console.log("check error", err);
+        console.log("jwt verify error", err);
         return createError(401, "Unauthorized");
       }
       req.user = decode;
@@ -23,7 +23,7 @@ exports.auth = async (req, res, next) => {
       },
     });
     if (!user.enabled) {
-      return createError(401, "This account can't access");
+      return createError(404, "Access denied");
     }
     next();
   } catch (err) {

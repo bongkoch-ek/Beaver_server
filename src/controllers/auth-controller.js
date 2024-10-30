@@ -6,7 +6,7 @@ const createError = require('../utils/createError')
 
 exports.register = async (req, res, next) => {
     try {
-        const { email,displayname, password,confirmpassword, firstname, lastname,  } = req.body; 
+        const { email,username, password, firstname, lastname,  } = req.body; 
 
         if (!email) {
             return createError(400, "Email is required!!"); 
@@ -15,10 +15,6 @@ exports.register = async (req, res, next) => {
 
         if (!password) {
             return createError(400, "Password is required!!"); 
-        }
-
-        if (password !== confirmpassword) {
-            return createError(400, "Password do not match ")
         }
 
         // ตรวจสอบว่า email นั้นมีอยู่ในฐานข้อมูลหรือยัง
@@ -40,7 +36,7 @@ exports.register = async (req, res, next) => {
         await prisma.user.create({
             data: {
                 email: email,           
-                displayname: displayname ,
+                username: username ,
                 password: hashPassword,
                 fullname : firstname + '' + lastname,
             }
@@ -67,11 +63,16 @@ exports.login = async (req, res, next) => {
             }
         });
 
-        // หากไม่พบผู้ใช้หรือผู้ใช้ถูกปิดการใช้งาน (enabled: false)
-        if (!user || !user.enabled) {
-            return createError(400, "User Not found or not Enabled"); 
+        // หากไม่พบผู้ใช้งานที่ระบุ
+        if (!user) {
+            return createError(400, "User not found"); 
         }
 
+        // ผู้ใช้ถูกปิดการใช้งาน (enabled: false)
+        if(!user.enable){
+            return createError(404,"Access denied")
+        }
+    
         // ตรวจสอบความถูกต้องของรหัสผ่านที่ผู้ใช้กรอกมา
         const isMatch = await bcrypt.compare(password, user.password); // เปรียบเทียบรหัสผ่านที่กรอกกับที่เก็บในฐานข้อมูล
         if (!isMatch) {
@@ -84,13 +85,13 @@ exports.login = async (req, res, next) => {
             email: user.email,   
             displayname: user.displayname,
             fullname: user.fullname,   
-            profileimage: user.profileimage,
+            profileImage: user.profileimage,
             createdAt : user.createdAt,
             updatedAt : user.updatedAt
         };
 
         // สร้าง JWT Token โดยใช้ข้อมูล payload และ secret key ที่เก็บในไฟล์ .env
-        jwt.sign(payload, process.env.SECRET, {
+        jwt.sign(payload, process.env.JWT_SECRET, {
             expiresIn: '30d' // กำหนดอายุของ Token เป็น 30 วัน
         }, (err, token) => { // callback function ที่จะถูกเรียกเมื่อสร้าง token เสร็จ
             if (err) {
