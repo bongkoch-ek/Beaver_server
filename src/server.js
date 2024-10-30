@@ -1,8 +1,28 @@
-const express = require("express")
-const cors = require("cors")
-const app = express()
+require("dotenv").config();
+const {port,express,app,cors,morgan,io} = require("./model")
+const {notFound,handleError} = require("./middlewares")
 
-app.use(express.json())
-app.use(cors())
+app.use(cors({
+    origin: "http://localhost:5173",
+    methods: ["GET","POST","PUT","DELETE","PATCH"],
+    credentials: true,
+}))
+app.use(express.json({limit:"20mb"}));
+app.use(morgan("dev"));
 
-app.listen(8888,()=> console.log("server is running on port 8888"))
+app.use((req, res, next) => {
+    req.io = io;
+    next();
+  });
+
+app.use("/auth",()=>{})
+app.use("/user",()=>{})
+app.use("/dashboard",()=>{})
+app.use("/",()=>{})
+
+
+
+app.use("*", notFound);
+app.use(handleError);
+
+app.listen(port,()=> console.log(`server is running on port ${port}`))
