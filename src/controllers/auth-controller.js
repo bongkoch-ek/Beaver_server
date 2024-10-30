@@ -6,7 +6,7 @@ const createError = require('../utils/createError')
 
 exports.register = async (req, res, next) => {
     try {
-        const { email,username, password, firstname, lastname,  } = req.body; 
+        const { email,displayName, password, firstname, lastname,  } = req.body; 
 
         if (!email) {
             return createError(400, "Email is required!!"); 
@@ -36,7 +36,7 @@ exports.register = async (req, res, next) => {
         await prisma.user.create({
             data: {
                 email: email,           
-                username: username ,
+                displayName: displayName ,
                 password: hashPassword,
                 fullname : firstname + '' + lastname,
             }
@@ -83,9 +83,9 @@ exports.login = async (req, res, next) => {
         const payload = {
             id: user.id,      
             email: user.email,   
-            displayname: user.displayname,
+            displayName: user.displayName,
             fullname: user.fullname,   
-            profileImage: user.profileimage,
+            profileImage: user.profileImage,
             createdAt : user.createdAt,
             updatedAt : user.updatedAt
         };
