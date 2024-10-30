@@ -60,7 +60,7 @@ exports.login = async (req, res, next) => {
 
         const { email , password } = req.body; 
 
-        // ตรวจสอบว่า username มีอยู่ในฐานข้อมูลหรือไม่
+        // ตรวจสอบว่า email มีอยู่ในฐานข้อมูลหรือไม่
         const user = await prisma.user.findFirst({
             where: {
                 email : email
@@ -85,8 +85,8 @@ exports.login = async (req, res, next) => {
             displayname: user.displayname,
             fullname: user.fullname,   
             profileimage: user.profileimage,
-            createdat : user.createdat,
-            updatedat : user.updatedat
+            createdAt : user.createdAt,
+            updatedAt : user.updatedAt
         };
 
         // สร้าง JWT Token โดยใช้ข้อมูล payload และ secret key ที่เก็บในไฟล์ .env
