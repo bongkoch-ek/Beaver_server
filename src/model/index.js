@@ -9,10 +9,10 @@ const http = require("http");
 const { Server } = require("socket.io");
 const server = http.createServer(app);
 const io = new Server(server, {
-  cors: {
-    origin: "*",
-    methods: ["GET", "POST", "PUT", "DELETE"],
-  },
+    cors: {
+        origin: "http://localhost:5173", 
+        methods: ["GET", "POST"],
+    },
 });
 
 
@@ -25,5 +25,6 @@ module.exports = {
     bcrypt,
     app,
     jwt,
-    io
+    io,
+    server
 }
