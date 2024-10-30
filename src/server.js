@@ -1,6 +1,7 @@
 require("dotenv").config();
 const {port,express,app,cors,morgan,io,server} = require("./model")
 const {notFound,handleError} = require("./middlewares")
+const {authRoutes} = require('./routes')
 
 app.use(cors({
     origin: "http://localhost:5173",
@@ -29,7 +30,7 @@ io.on("connection", (socket) => {
 });
 
 /// route section
-app.use("/auth",()=>{})
+app.use("/auth",authRoutes)
 app.use("/user",()=>{})
 app.use("/dashboard",()=>{})
 
