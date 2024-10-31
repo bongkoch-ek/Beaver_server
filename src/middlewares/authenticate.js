@@ -22,7 +22,7 @@ exports.auth = async (req, res, next) => {
         email: req.user.email,
       },
     });
-    if (!user.enabled) {
+    if (!user.enable) {
       return createError(404, "Access denied");
     }
     next();
