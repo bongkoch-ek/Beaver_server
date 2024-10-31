@@ -3,44 +3,16 @@ const prisma = require("../configs/prisma");
 const createError = require("../utils/createError");
 
 exports.register = async (req, res, next) => {
-
-    try {
-        const { email,displayName, password, firstname, lastname,  } = req.body; 
-
-        if (!email) {
-            return createError(400, "Email is required!!"); 
-        }
-     
-
-        if (!password) {
-            return createError(400, "Password is required!!"); 
-        }
-
-        // ตรวจสอบว่า email นั้นมีอยู่ในฐานข้อมูลหรือยัง
-        const user = await prisma.user.findFirst({
-            where: {
-                email: email
-            }
-        });
-
+  try {
+    const { email, displayName, password, firstname, lastname } = req.body;
 
     if (!email) {
       return createError(400, "Email is required!!");
     }
 
-
     if (!password) {
       return createError(400, "Password is required!!");
     }
-        await prisma.user.create({
-            data: {
-                email: email,           
-                displayName: displayName ,
-                password: hashPassword,
-                fullname : firstname + '' + lastname,
-            }
-        });
-
 
     // ตรวจสอบว่า email นั้นมีอยู่ในฐานข้อมูลหรือยัง
     const user = await prisma.user.findFirst({
@@ -61,9 +33,9 @@ exports.register = async (req, res, next) => {
     await prisma.user.create({
       data: {
         email: email,
-        username: username,
+        displayName: displayName,
         password: hashPassword,
-        fullname: firstname + "" + lastname,
+        fullname: `${firstname.trim()} ${lastname.trim()}`,
       },
     });
 
