@@ -12,7 +12,7 @@ model User {
   fullname     String
   email        String   @unique
   password     String
-  username     String
+  displayName  String   @map("display_name")
   profileImage String?  @map("proflie_image")
   enable       Boolean  @default(true)
   createdAt    DateTime @default(now()) @map("created_at")
