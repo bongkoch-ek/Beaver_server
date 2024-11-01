@@ -13,7 +13,10 @@ model User {
   email        String   @unique
   password     String
   displayName  String   @map("display_name")
-  profileImage String?  @map("profile_image")
+  profileImage String?  @map("proflie_image")
+  coverImage   String?  @map("cover_image")
+  bio          String?  @db.MediumText
+  phone        String?
   enable       Boolean  @default(true)
   createdAt    DateTime @default(now()) @map("created_at")
   updatedAt    DateTime @updatedAt @map("updated_at")
@@ -28,8 +31,9 @@ model User {
 model Project {
   id          Int      @id @default(autoincrement())
   projectName String   @map("project_name")
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
+  image       String?
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamp(0)
+  updatedAt   DateTime @updatedAt @map("updated_at") @db.Timestamp(0)
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId      Int
 
@@ -59,13 +63,12 @@ enum Status {
 model Task {
   id          Int       @id @default(autoincrement())
   title       String
-  description String?
+  description String?   @db.MediumText
   priority    Priority  @default(MEDIUM)
-  imageUrl    String?   @map("image_url")
   startDate   DateTime? @map("start_date")
   dueDate     DateTime? @map("due_date")
-  createdAt   DateTime  @default(now()) @map("created_at")
-  updatedAt   DateTime  @updatedAt @map("updated_at")
+  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamp(0)
+  updatedAt   DateTime  @updatedAt @map("updated_at") @db.Timestamp(0)
   user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId      Int
   list        List      @relation(fields: [listId], references: [id], onDelete: Cascade)
@@ -100,8 +103,8 @@ model Comment {
   id        Int      @id @default(autoincrement())
   comment   String
   imageUrl  String?  @map("image_url")
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamp(0)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamp(0)
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId    Int      @map("user_id")
   task      Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
@@ -110,6 +113,7 @@ model Comment {
 
 model GroupProject {
   id        Int     @id @default(autoincrement())
+  role      ROLE    @default(MEMBER)
   user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId    Int
   project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
@@ -118,14 +122,7 @@ model GroupProject {
   @@map("group_project")
 }
 
-model Image {
-  id         Int      @id @default(autoincrement())
-  asset_id   String
-  public_id  String
-  url        String
-  secure_url String
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt @db.Timestamp(0)
-
-  @@map("image")
+enum ROLE {
+  OWNER
+  MEMBER
 }

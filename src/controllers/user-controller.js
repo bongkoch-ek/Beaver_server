@@ -22,7 +22,7 @@ exports.listUser = async (req, res, next) => {
   try {
     const users = await prisma.user.findMany({
         select:{
-            username:true,
+            displayName:true,
             email:true,
             fullname:true,
             profileImage:true,
@@ -42,12 +42,12 @@ exports.updateProfile = async (req, res, next) => {
     const user = await prisma.user.update({
       where: { id: +id },
       data: { 
-        username: name,
+        displayName: name,
         email: email,
         profileImage: profileImage,
      },
     });
-    res.status(200).json({message: `Updated user ${user.username} successfully`});
+    res.status(200).json({message: `Updated user ${user.displayName} successfully`});
   } catch (err) {
     next(err);
   }
