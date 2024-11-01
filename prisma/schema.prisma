@@ -13,7 +13,7 @@ model User {
   email        String   @unique
   password     String
   displayName  String   @map("display_name")
-  profileImage String?  @map("proflie_image")
+  profileImage String?  @map("profile_image")
   enable       Boolean  @default(true)
   createdAt    DateTime @default(now()) @map("created_at")
   updatedAt    DateTime @updatedAt @map("updated_at")
@@ -116,4 +116,16 @@ model GroupProject {
   projectId Int
 
   @@map("group_project")
+}
+
+model Image {
+  id         Int      @id @default(autoincrement())
+  asset_id   String
+  public_id  String
+  url        String
+  secure_url String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt @db.Timestamp(0)
+
+  @@map("image")
 }

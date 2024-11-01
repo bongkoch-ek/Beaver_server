@@ -1,6 +1,6 @@
 const { express } = require("../model");
 const router = express.Router();
-const {createComment,createList,createTask,addMember,getAllComments,getAllLists,getAllProjects,gettAllTasks,getCommentById,getListById,getTaskById,getProjectById,updateList,updateProject,updateTask,deleteComment,deleteList,deleteMember,deleteProject,deleteTask} = require("../controllers")
+const {createComment,createList,createTask,addMember,getAllComments,getAllLists,getAllProjects,getAllTasks,getCommentById,getListById,getTaskById,getProjectById,updateList,updateProject,updateTask,deleteComment,deleteList,deleteMember,deleteProject,deleteTask,uploadImages,removeImages} = require("../controllers")
 
 /// C
 
@@ -14,7 +14,7 @@ router.post("/add-member",addMember) // add member to project
 router.get("/comment",getAllComments)  // get list all comment
 router.get("/project",getAllProjects)  // get all project -> include list -> include task ****
 router.get("/list",getAllLists)  // get all list 
-router.get("/task",gettAllTasks)  // get all task 
+router.get("/task",getAllTasks)  // get all task 
 router.get("/comment/:id",getCommentById)  // get comment by id
 router.get("/list/:id",getListById)  // get list by id
 router.get("/task/:id",getTaskById)  // get task by id
@@ -28,15 +28,19 @@ router.patch("/list/:id",updateList)  // edit list
 router.patch("/project/:id",updateProject)  // edit project
 
 
+
 /// D
 
 router.delete("/list/:id",deleteList)  
 router.delete("/task/:id",deleteTask)
 router.delete("/project/:id",deleteProject)
 router.delete("/comment/:id",deleteComment)
-router.delete("/member/:id",deleteMember)  // delete member by id
+router.delete("/member",deleteMember)  // delete member by body parameter
 
 
+// image upload 
+router.post("/images",uploadImages)  // use this api for upload images
+router.post("/removeimages",removeImages)  // use this api for remove images
 
 
 module.exports = router;
