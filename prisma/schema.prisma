@@ -31,11 +31,12 @@ model User {
 model Project {
   id          Int      @id @default(autoincrement())
   projectName String   @map("project_name")
-  image       String?
   createdAt   DateTime @default(now()) @map("created_at") @db.Timestamp(0)
   updatedAt   DateTime @updatedAt @map("updated_at") @db.Timestamp(0)
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId      Int
+  Image       Image?   @relation(fields: [imageId], references: [id], onDelete: Cascade)
+  imageId     Int?
 
   list         List[]
   groupProject GroupProject[]
@@ -73,10 +74,11 @@ model Task {
   userId      Int
   list        List      @relation(fields: [listId], references: [id], onDelete: Cascade)
   listId      Int
+  Image       Image?    @relation(fields: [imageId], references: [id], onDelete: Cascade)
+  imageId     Int?
 
   comment Comment[]
   webLink Weblink[]
-  attach  Attach[]
 }
 
 enum Priority {
@@ -90,13 +92,6 @@ model Weblink {
   url    String
   task   Task   @relation(fields: [taskId], references: [id], onDelete: Cascade)
   taskId Int    @map("task_id")
-}
-
-model Attach {
-  id       Int    @id @default(autoincrement())
-  imageUrl String @map("image_url")
-  task     Task   @relation(fields: [taskId], references: [id])
-  taskId   Int
 }
 
 model Comment {
@@ -125,4 +120,19 @@ model GroupProject {
 enum ROLE {
   OWNER
   MEMBER
+}
+
+model Image {
+  id         Int      @id @default(autoincrement())
+  asset_id   String
+  public_id  String
+  url        String
+  secure_url String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt @db.Timestamp(0)
+
+  project Project[]
+  task    Task[]
+
+  @@map("image")
 }
