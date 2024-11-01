@@ -106,7 +106,7 @@ exports.login = async (req, res, next) => {
 
 exports.loginGoogle = async (req, res, next) => {
   try {
-    const { email, name, picture } = req.body;
+    const { email, name, picture , given_name } = req.body;
     console.log("check body from google :", req.body);
     const user = await prisma.user.findFirst({
       where: {
@@ -121,7 +121,7 @@ exports.loginGoogle = async (req, res, next) => {
         },
         data: {
           email: email,
-          username: name,
+          displayName: given_name ,
           fullname: name,
           profileImage: picture,
         },
@@ -130,7 +130,7 @@ exports.loginGoogle = async (req, res, next) => {
       newUser = await prisma.user.create({
         data: {
           email: email,
-          username: name,
+          displayName: name,
           fullname: name,
           profileImage: picture,
           password: "123456",
@@ -142,7 +142,7 @@ exports.loginGoogle = async (req, res, next) => {
       email: newUser.email,
       fullname: newUser.fullname,
       profileImage: newUser.profileImage,
-      username: newUser.username,
+      displayname: newUser.displayName,
     };
 
     console.log("check payload :", payload);
