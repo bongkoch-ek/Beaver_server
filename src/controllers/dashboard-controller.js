@@ -2,6 +2,14 @@ const prisma = require("../configs/prisma");
 const createError = require("../utils/createError");
 const { cloudinary } = require("../model");
 
+// cloudinary config
+cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET,
+  });
+  
+
 // C
 
 exports.createTask = async (req, res, next) => {
@@ -343,6 +351,7 @@ exports.deleteMember = async (req, res, next) => {
   }
 };
 
+// images section
 exports.uploadImages = async (req, res, next) => {
   try {
     const result = await cloudinary.uploader.upload(req.body.image, {
@@ -363,6 +372,41 @@ exports.removeImages = async (req, res, next) => {
       cloudinary.uploader.destroy(public_id, (result) => {
         res.send("Remove image succesfull");
       });
+    } catch (err) {
+      next(err);
+    }
+  };
+
+  // search section
+  const handleQuery = async (req, res, query) => {
+    try {
+      const member = await prisma.user.findMany({
+        where: {
+          email: {
+            contains: query,
+          },
+        },
+        select: {
+          id: true,
+          email: true,
+          displayName: true,
+          fullname: true,
+        }
+        
+      });
+      res.send(member);
+    } catch (err) {
+      next(err);
+    }
+  };
+
+  exports.searchFilters = async (req, res, next) => {
+    try {
+      const { query } = req.body;
+      if (query) {
+        console.log("query :", query);
+        await handleQuery(req, res, query);
+      }
     } catch (err) {
       next(err);
     }
