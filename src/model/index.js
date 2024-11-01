@@ -14,7 +14,7 @@ const io = new Server(server, {
         methods: ["GET", "POST"],
     },
 });
-
+const cloudinary = require("cloudinary").v2;
 
 
 module.exports = {
@@ -26,5 +26,6 @@ module.exports = {
     app,
     jwt,
     io,
-    server
+    server,
+    cloudinary
 }

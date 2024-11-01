@@ -1,6 +1,6 @@
 const {register,login,loginGoogle} = require('./auth-controller')
 const {getUser,listUser,updateProfile,deleteUser, createProject} = require('./user-controller')
-const {createComment,createList,createTask,addMember,getAllComments,getAllProjects,getAllLists,gettAllTasks,getCommentById,getListById,getTaskById,getProjectById,updateList,updateProject,updateTask,deleteComment,deleteList,deleteMember,deleteProject,deleteTask} = require("./dashboard-controller")
+const {createComment,createList,createTask,addMember,getAllComments,getAllProjects,getAllLists,getAllTasks,getCommentById,getListById,getTaskById,getProjectById,updateList,updateProject,updateTask,deleteComment,deleteList,deleteMember,deleteProject,deleteTask,uploadImages,removeImages} = require("./dashboard-controller")
 
 module.exports = {
     register,
@@ -18,7 +18,7 @@ module.exports = {
     getAllComments,
     getAllProjects,
     getAllLists,
-    gettAllTasks,
+    getAllTasks,
     getCommentById,
     getListById,
     getTaskById,
@@ -30,5 +30,7 @@ module.exports = {
     deleteList,
     deleteMember,
     deleteProject,
-    deleteTask
+    deleteTask,
+    uploadImages,
+    removeImages
 }
