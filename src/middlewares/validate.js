@@ -1,6 +1,6 @@
 
 const Joi = require('joi');
-const createError = require('../utils/createError');
+const  createError  = require('../utils/createError');
 
 const registerSchema = Joi.object({
   email: Joi.string().email({ tlds: false }).required().messages({
