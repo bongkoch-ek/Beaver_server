@@ -107,6 +107,7 @@ exports.login = async (req, res, next) => {
 exports.loginGoogle = async (req, res, next) => {
   try {
     const { email, name, picture } = req.body;
+    console.log("check body from google :", req.body);
     const user = await prisma.user.findFirst({
       where: {
         email: email,

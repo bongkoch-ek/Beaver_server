@@ -1,0 +1,42 @@
+const { express } = require("../model");
+const router = express.Router();
+const {createComment,createList,createTask,addMember,getAllComments,getAllLists,getAllProjects,gettAllTasks,getCommentById,getListById,getTaskById,getProjectById,updateList,updateProject,updateTask,deleteComment,deleteList,deleteMember,deleteProject,deleteTask} = require("../controllers")
+
+/// C
+
+router.post("/create-task",createTask)
+router.post("/create-list",createList)
+router.post("/create-comment",createComment)  // create comment
+router.post("/add-member",addMember) // add member to project
+ 
+/// R 
+
+router.get("/comment",getAllComments)  // get list all comment
+router.get("/project",getAllProjects)  // get all project -> include list -> include task ****
+router.get("/list",getAllLists)  // get all list 
+router.get("/task",gettAllTasks)  // get all task 
+router.get("/comment/:id",getCommentById)  // get comment by id
+router.get("/list/:id",getListById)  // get list by id
+router.get("/task/:id",getTaskById)  // get task by id
+router.get("/project/:id",getProjectById)  // get project by id
+
+
+/// U
+
+router.patch("/task/:id",updateTask)  // edit task
+router.patch("/list/:id",updateList)  // edit list
+router.patch("/project/:id",updateProject)  // edit project
+
+
+/// D
+
+router.delete("/list/:id",deleteList)  
+router.delete("/task/:id",deleteTask)
+router.delete("/project/:id",deleteProject)
+router.delete("/comment/:id",deleteComment)
+router.delete("/member/:id",deleteMember)  // delete member by id
+
+
+
+
+module.exports = router;
