@@ -11,7 +11,7 @@ router.get("/:id", getUser); // get user by id
 router.get("/listuser", listUser); // get all user
 
 /// U
-router.patch("/:id", updateProfile); // update user profile
+router.patch("/update-profile", updateProfile); // update user profile
 
 /// D
 router.delete("/:id", deleteUser); //  delete user
