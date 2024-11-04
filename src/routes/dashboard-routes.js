@@ -1,7 +1,6 @@
 const { express } = require("../model");
 const router = express.Router();
-const {createComment,createList,createTask,addMember,getAllComments,getAllLists,getAllProjects,getAllTasks,getCommentById,getListById,getTaskById,getProjectById,updateList,updateProject,updateTask,deleteComment,deleteList,deleteMember,deleteProject,deleteTask,uploadImages,removeImages,searchFilters} = require("../controllers")
-const {auth} =require("../middlewares")
+const {createComment,createList,createTask,addMember,getAllComments,getAllLists,getAllProjects,getAllTasks,getCommentById,getListById,getTaskById,getProjectById,updateList,updateProject,updateTask,deleteComment,deleteList,deleteMember,deleteProject,deleteTask,searchFilters} = require("../controllers")
 
 /// C
 
@@ -38,9 +37,7 @@ router.delete("/comment/:id",deleteComment)
 router.delete("/member",deleteMember)  // delete member by body parameter
 
 
-// image upload 
-router.post("/images",uploadImages)  // use this api for upload images
-router.post("/removeimages",removeImages)  // use this api for remove images
+
 
 
 module.exports = router;
