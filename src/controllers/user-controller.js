@@ -37,22 +37,21 @@ exports.listUser = async (req, res, next) => {
 // Update user profile
 exports.updateProfile = async (req, res, next) => {
   try {
-    const { displayName, firstName, lastName, profileImage, bio, phoneNumber } =
+    const { displayname, firstname, lastname, profileImage, bio, phonenumber } =
       req.body;
+      console.log(req.body);
     const userId = req.user.id;
-    if (!firstName && !lastName) {
-      return createError(400, "Please enter first name and last name");
-    }
     const user = await prisma.user.update({
       where: { id: userId },
       data: {
-        displayName: displayName,
-        fullname: `${firstName.trim()} ${lastName.trim()}`,
+        displayName: displayname,
+        fullname: `${firstname} ${lastname}`,
         bio: bio,
-        phone: phoneNumber,
+        phone: phonenumber,
         profileImage: profileImage,
       },
     });
+    console.log(user)
     res
       .status(200)
       .json({ message: `Updated user ${user.displayName} successfully` });
