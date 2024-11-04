@@ -21,12 +21,12 @@ exports.getUser = async (req, res, next) => {
 exports.listUser = async (req, res, next) => {
   try {
     const users = await prisma.user.findMany({
-        select:{
-            displayName:true,
-            email:true,
-            fullname:true,
-            profileImage:true,
-        }
+      select: {
+        displayName: true,
+        email: true,
+        fullname: true,
+        profileImage: true,
+      },
     });
     res.status(200).json(users);
   } catch (err) {
@@ -37,17 +37,25 @@ exports.listUser = async (req, res, next) => {
 // Update user profile
 exports.updateProfile = async (req, res, next) => {
   try {
-    const { id } = req.params;
-    const { name, email , profileImage } = req.body; 
+    const { displayName, firstName, lastName, profileImage, bio, phoneNumber } =
+      req.body;
+    const userId = req.user.id;
+    if (!firstName && !lastName) {
+      return createError(400, "Please enter first name and last name");
+    }
     const user = await prisma.user.update({
-      where: { id: +id },
-      data: { 
-        displayName: name,
-        email: email,
+      where: { id: userId },
+      data: {
+        displayName: displayName,
+        fullname: `${firstName.trim()} ${lastName.trim()}`,
+        bio: bio,
+        phone: phoneNumber,
         profileImage: profileImage,
-     },
+      },
     });
-    res.status(200).json({message: `Updated user ${user.displayName} successfully`});
+    res
+      .status(200)
+      .json({ message: `Updated user ${user.displayName} successfully` });
   } catch (err) {
     next(err);
   }
@@ -66,17 +74,19 @@ exports.deleteUser = async (req, res, next) => {
   }
 };
 
-// Create a project 
+// Create a project
 exports.createProject = async (req, res, next) => {
   try {
-    const { projectName , userId } = req.body; 
+    const { projectName, userId } = req.body;
     const project = await prisma.project.create({
       data: {
         projectName: projectName,
-        user: { connect: { id: +userId } }, 
+        user: { connect: { id: +userId } },
       },
     });
-    res.status(201).json({message: `Created project ${project.projectName} successfully`});
+    res
+      .status(201)
+      .json({ message: `Created project ${project.projectName} successfully` });
   } catch (err) {
     next(err);
   }

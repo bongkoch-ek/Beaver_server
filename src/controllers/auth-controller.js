@@ -30,7 +30,7 @@ exports.register = async (req, res, next) => {
     const hashPassword = await bcrypt.hash(password, 10); // แฮชรหัสผ่าน
 
     // สร้างผู้ใช้ใหม่ในฐานข้อมูล
-    await prisma.user.create({
+    const createUser = await prisma.user.create({
       data: {
         email: email,
         displayName: displayName,
