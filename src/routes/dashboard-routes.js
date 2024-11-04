@@ -1,6 +1,7 @@
 const { express } = require("../model");
 const router = express.Router();
 const {createComment,createList,createTask,addMember,getAllComments,getAllLists,getAllProjects,getAllTasks,getCommentById,getListById,getTaskById,getProjectById,updateList,updateProject,updateTask,deleteComment,deleteList,deleteMember,deleteProject,deleteTask,uploadImages,removeImages,searchFilters} = require("../controllers")
+const {auth} =require("../middlewares")
 
 /// C
 
@@ -9,6 +10,8 @@ router.post("/create-list",createList)
 router.post("/create-comment",createComment)  // create comment
 router.post("/add-member",addMember) // add member to project
 router.post("/search",searchFilters) // use this api for search
+
+
 /// R 
 
 router.get("/comment",getAllComments)  // get list all comment
@@ -25,10 +28,7 @@ router.get("/project/:id",getProjectById)  // get project by id
 
 router.patch("/task/:id",updateTask)  // edit task
 router.patch("/list/:id",updateList)  // edit list
-router.patch("/project/:id",updateProject)  // edit project
-
-
-
+router.patch("/project/:id",updateProject)  // edit proje
 /// D
 
 router.delete("/list/:id",deleteList)  
