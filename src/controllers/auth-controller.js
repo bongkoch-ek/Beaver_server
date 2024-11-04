@@ -76,11 +76,11 @@ exports.login = async (req, res, next) => {
     const payload = {
       id: user.id,
       email: user.email,
-      displayname: user.displayname,
+      displayname: user.displayName,
       fullname: user.fullname,
       profileImage: user.profileImage,
       createdAt: user.createdAt,
-      updatedAt: user.updatedAt,
+      updatedAt: user.updatedAt
     };
 
     // สร้าง JWT Token โดยใช้ข้อมูล payload และ secret key ที่เก็บในไฟล์ .env
