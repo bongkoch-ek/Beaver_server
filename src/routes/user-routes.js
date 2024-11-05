@@ -4,7 +4,7 @@ const {getUser,listUser,createProject,updateProfile,deleteUser} = require("../co
 const {auth} = require("../middlewares")
 
 /// C
-router.post("/create-project", createProject); // create project
+router.post("/create-project",auth ,createProject); // create project
 
 /// R
 router.get("/:id", getUser); // get user by id
