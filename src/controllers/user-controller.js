@@ -86,8 +86,9 @@ exports.deleteUser = async (req, res, next) => {
 // Create a project
 exports.createProject = async (req, res, next) => {
     try {
-      const { projectName } = req.body;
+      const { projectName , images } = req.body;
       const userId = req.user.id; 
+      console.log(images)
   
       if (!userId) {
         return next(createError(403, "User not authenticated"));
@@ -99,6 +100,14 @@ exports.createProject = async (req, res, next) => {
         data: {
           projectName: projectName,
           userId: userId, 
+          images:{
+            create: images.map((item) => ({
+                asset_id: item.asset_id,
+                public_id: item.public_id,
+                url: item.url,
+                secure_url: item.secure_url,
+              })),
+          }
         },
       });
   
