@@ -3,19 +3,29 @@ const createError = require("../utils/createError");
 
 // Get a user by ID
 exports.getUser = async (req, res, next) => {
-  try {
-    const { id } = req.params;
-    const user = await prisma.user.findUnique({
-      where: { id: +id },
-    });
-    if (!user) {
-      return next(createError(404, "User not found"));
+    try {
+      const { id } = req.params;
+  
+      if (!id || isNaN(id)) {
+        return next(createError(400, "Invalid user ID"));
+      }
+  
+      const user = await prisma.user.findUnique({
+        where: { 
+          id: parseInt(id) 
+        },
+      });
+  
+      if (!user) {
+        return next(createError(404, "User not found"));
+      }
+  
+      res.status(200).json(user);
+    } catch (err) {
+      next(err);
     }
-    res.status(200).json(user);
-  } catch (err) {
-    next(err);
-  }
-};
+  };
+  
 
 // List all users
 exports.listUser = async (req, res, next) => {
@@ -37,7 +47,7 @@ exports.listUser = async (req, res, next) => {
 // Update user profile
 exports.updateProfile = async (req, res, next) => {
   try {
-    const { displayname, firstname, lastname, profileImage, bio, phonenumber } =
+    const { displayname, firstname, lastname, profileImage, bio, phone} =
       req.body;
       console.log("check body update :",req.body);
     const userId = req.user.id;
@@ -47,7 +57,7 @@ exports.updateProfile = async (req, res, next) => {
         displayName: displayname,
         fullname: `${firstname} ${lastname}`,
         bio: bio,
-        phone: phonenumber,
+        phone: phone,
         profileImage: profileImage,
       },
     });
@@ -75,18 +85,30 @@ exports.deleteUser = async (req, res, next) => {
 
 // Create a project
 exports.createProject = async (req, res, next) => {
-  try {
-    const { projectName, userId } = req.body;
-    const project = await prisma.project.create({
-      data: {
-        projectName: projectName,
-        user: { connect: { id: +userId } },
-      },
-    });
-    res
-      .status(201)
-      .json({ message: `Created project ${project.projectName} successfully` });
-  } catch (err) {
-    next(err);
-  }
-};
+    try {
+      const { projectName } = req.body;
+      const userId = req.user.id; 
+  
+      if (!userId) {
+        return next(createError(403, "User not authenticated"));
+      }
+  
+      console.log("check projectname :", projectName);
+  
+      const project = await prisma.project.create({
+        data: {
+          projectName: projectName,
+          userId: userId, 
+        },
+      });
+  
+      res.status(201).json({ 
+        message: `Created project ${project.projectName} successfully`,
+        project: project 
+      });
+    } catch (err) {
+      next(err);
+    }
+  };
+  
+  
