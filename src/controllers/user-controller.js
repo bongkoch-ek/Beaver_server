@@ -39,7 +39,7 @@ exports.updateProfile = async (req, res, next) => {
   try {
     const { displayname, firstname, lastname, profileImage, bio, phonenumber } =
       req.body;
-      console.log(req.body);
+      console.log("check body update :",req.body);
     const userId = req.user.id;
     const user = await prisma.user.update({
       where: { id: userId },
@@ -51,10 +51,10 @@ exports.updateProfile = async (req, res, next) => {
         profileImage: profileImage,
       },
     });
-    console.log(user)
+    console.log("check user update :",user)
     res
       .status(200)
-      .json({ message: `Updated user ${user.displayName} successfully` });
+      .json({ message: `Updated user ${user.displayName} successfully`, user : user });
   } catch (err) {
     next(err);
   }
