@@ -213,11 +213,17 @@ exports.getAllTasks = async (req, res, next) => {
 
 exports.getAllProjects = async (req, res, next) => {
   try {
+    const {id} = req.params
     const projects = await prisma.groupProject.findMany({
+      where: { userId : +id },
       include: {
-        list: {
-          include: { tasks: true },
-        },
+        project : true,
+        user : {
+          select :{
+          email : true ,
+          displayName : true,
+          fullname : true ,
+        }}
       },
     });
     res.status(200).json(projects);
