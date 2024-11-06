@@ -1,0 +1,42 @@
+[
+    {
+      "fullname": "User 4",
+      "email": "user4@example.com",
+      "password": "hashed_password1",
+      "displayName": "DisplayName1",
+      "profileImage": null,
+      "coverImage": null,
+      "bio": "This is the bio of user 1",
+      "phone": "12345678901",
+      "enable": true,
+      "createdAt": "2024-11-06T15:30:00+07:00",
+      "updatedAt": "2024-11-06T15:30:00+07:00"
+    },
+    {
+      "fullname": "User 5",
+      "email": "user5@example.com",
+      "password": "hashed_password2",
+      "displayName": "DisplayName2",
+      "profileImage": null,
+      "coverImage": null,
+      "bio": "This is the bio of user 2",
+      "phone": "12345678902",
+      "enable": true,
+      "createdAt": "2024-11-06T15:30:00+07:00",
+      "updatedAt": "2024-11-06T15:30:00+07:00"
+    },
+    {
+      "fullname": "User 6",
+      "email": "user6@example.com",
+      "password": "hashed_password3",
+      "displayName": "DisplayName3",
+      "profileImage": null,
+      "coverImage": null,
+      "bio": "This is the bio of user 3",
+      "phone": "12345678903",
+      "enable": true,
+      "createdAt": "2024-11-06T15:30:00+07:00",
+      "updatedAt": "2024-11-06T15:30:00+07:00"
+    }
+  ]
+  
