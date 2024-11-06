@@ -84,7 +84,7 @@ exports.createComment = async (req, res, next) => {
 
 exports.addMember = async (req, res, next) => {
   try {
-    const { projectId, userId } = req.body;
+    const { projectId , userId } = req.body;
 
     if (!projectId || !userId) {
       return next(createError(400, "Project ID and User ID are required"));
