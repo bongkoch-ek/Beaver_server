@@ -86,38 +86,47 @@ exports.deleteUser = async (req, res, next) => {
 // Create a project
 exports.createProject = async (req, res, next) => {
     try {
-      const { projectName , images } = req.body;
+      const { projectName, images } = req.body; 
       const userId = req.user.id; 
-      console.log(images)
+      console.log(images); 
   
       if (!userId) {
         return next(createError(403, "User not authenticated"));
       }
   
-      console.log("check projectname :", projectName);
+      console.log("check project name :", projectName); 
   
       const project = await prisma.project.create({
         data: {
           projectName: projectName,
-          userId: userId, 
-          images:{
+          userId: userId,
+          images: {
             create: images.map((item) => ({
-                asset_id: item.asset_id,
-                public_id: item.public_id,
-                url: item.url,
-                secure_url: item.secure_url,
-              })),
-          }
+              asset_id: item.asset_id,
+              public_id: item.public_id,
+              url: item.url,
+              secure_url: item.secure_url,
+            })),
+          },
         },
       });
   
-      res.status(201).json({ 
+      const userResponse = {
+        id: userId,
+        email: req.user.email, 
+      };
+  
+      res.status(201).json({
         message: `Created project ${project.projectName} successfully`,
-        project: project 
+        project: {
+          id: project.id,
+          projectName: project.projectName,
+          user: userResponse, 
+        },
       });
     } catch (err) {
+      console.error("Error creating project:", err); 
       next(err);
     }
   };
-  
   
