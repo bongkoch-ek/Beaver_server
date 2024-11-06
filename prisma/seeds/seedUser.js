@@ -1,11 +1,17 @@
 const { PrismaClient } = require("@prisma/client");
 const fs = require("fs");
 const prisma = new PrismaClient();
+const bcrypt = require("bcryptjs")
 
 async function seedingUser() {
     const rawData = fs.readFileSync("prisma/data/dataUser.json");
     const data = JSON.parse(rawData);
-console.log(data)
+// console.log(data)
+    for( item of data ) {
+        const hashPassword = await bcrypt.hash(item.password,10)
+        item.password = hashPassword 
+    }
+    console.log(data)
     await prisma.user.createMany({data})
 }
 
