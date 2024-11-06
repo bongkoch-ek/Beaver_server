@@ -26,6 +26,7 @@ model User {
   list         List[]
   task         Task[]
   comment      Comment[]
+  activityLog  ActivityLog[]
 }
 
 model Project {
@@ -35,11 +36,12 @@ model Project {
   updatedAt   DateTime @updatedAt @map("updated_at") @db.Timestamp(0)
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId      Int
-  images       Image?   @relation(fields: [imageId], references: [id], onDelete: Cascade)
+  images      Image?   @relation(fields: [imageId], references: [id], onDelete: Cascade)
   imageId     Int?
 
   list         List[]
   groupProject GroupProject[]
+  activityLog  ActivityLog[]
 }
 
 model List {
@@ -135,4 +137,15 @@ model Image {
   task    Task[]
 
   @@map("image")
+}
+
+model ActivityLog {
+  id        Int      @id @default(autoincrement())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    Int
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  projectId Int
+  recentlyTime DateTime  @default(now()) @map("recently_time")
+
+  @@map("activity_log")
 }
