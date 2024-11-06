@@ -100,14 +100,14 @@ exports.createProject = async (req, res, next) => {
         data: {
           projectName: projectName,
           userId: userId,
-          // images: {
-          //   create: images.map((item) => ({
-          //     asset_id: item.asset_id,
-          //     public_id: item.public_id,
-          //     url: item.url,
-          //     secure_url: item.secure_url,
-          //   })),
-          // },
+        //   images: {
+        //     create: images.map((item) => ({
+        //       asset_id: item.asset_id,
+        //       public_id: item.public_id,
+        //       url: item.url,
+        //       secure_url: item.secure_url,
+        //     })),
+        //   },
         },
       });
 
