@@ -251,9 +251,9 @@ exports.getAllTasks = async (req, res, next) => {
 
 exports.getAllProjects = async (req, res, next) => {
   try {
-    const {id} = req.params
+    const userId = req.user.id;
     const projects = await prisma.groupProject.findMany({
-      where: { userId : +id },
+      where: { userId : userId },
       include: {
         project : true,
         user : {
