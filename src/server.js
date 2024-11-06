@@ -15,9 +15,9 @@ app.use(morgan("dev"));
 io.on("connection", (socket) => {
     console.log("User connected");
 
-    socket.on("cardDragging", (cardId) => {
-        console.log(cardId,"test message")
-        socket.broadcast.emit("cardDragging", cardId);
+    socket.on("cardDragging", (card) => {
+        console.log(card,"test message")
+        socket.broadcast.emit("move_task", card);
     });
 
     socket.on("editCard", (updatedCard) => {
