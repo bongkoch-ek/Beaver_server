@@ -14,7 +14,7 @@ router.post("/search",searchFilters) // use this api for search
 /// R 
 
 router.get("/comment",getAllComments)  // get list all comment
-router.get("/all-project/:id",getAllProjects)  // get all project -> include list -> include task ****
+router.get("/project",getAllProjects)  // get all project -> include list -> include task ****
 router.get("/list",getAllLists)  // get all list 
 router.get("/task",getAllTasks)  // get all task 
 router.get("/comment/:id",getCommentById)  // get comment by id
