@@ -113,6 +113,44 @@ exports.addMember = async (req, res, next) => {
 
 // R
 
+exports.getActivityLog = async (req, res, next) => {
+    try {
+        const userId = req.user.id; 
+        console.log(userId)
+        const activityLog = await prisma.activityLog.findMany({
+            distinct: ['projectId'],
+            where: {
+                userId: userId
+            },
+            include: {
+                project: {
+                    select: {
+                        id: true,
+                        projectName: true,
+                    }
+                }
+            },
+            orderBy: {
+                createdAt: 'desc' 
+            }
+        })
+
+        // const distinctProjects = [...new Set(activityLog.map(log => log.project.id))];
+        const distinctProjects = [...new Set(activityLog)];
+
+        // Return the activity log and distinct project IDs
+        res.status(200).json({
+            success: true,
+            data: {
+                activityLog,
+                distinctProjects
+            }
+        });
+    } catch (err) {
+        next(err);
+    }
+}
+
 exports.getTaskById = async (req, res, next) => {
   try {
     const { id } = req.params;
@@ -186,10 +224,10 @@ exports.getListById = async (req, res, next) => {
 
 exports.getProjectById = async (req, res, next) => {
   try {
-    const { id } = req.params;
-    const project = await prisma.groupProject.findUnique({
+    const id = Number(req.params.id);
+    const project = await prisma.project.findUnique({
       where: { id },
-      include: { members: true },
+    //   include: { members: true },
     });
     if (!project) {
       return createError(404, "Project not found");
@@ -213,11 +251,17 @@ exports.getAllTasks = async (req, res, next) => {
 
 exports.getAllProjects = async (req, res, next) => {
   try {
+    const userId = req.user.id;
     const projects = await prisma.groupProject.findMany({
+      where: { userId : userId },
       include: {
-        list: {
-          include: { tasks: true },
-        },
+        project : true,
+        user : {
+          select :{
+          email : true ,
+          displayName : true,
+          fullname : true ,
+        }}
       },
     });
     res.status(200).json(projects);

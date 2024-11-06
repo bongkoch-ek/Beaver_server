@@ -1,6 +1,6 @@
 const { express } = require("../model");
 const router = express.Router();
-const {createComment,createList,createTask,addMember,getAllComments,getAllLists,getAllProjects,getAllTasks,getCommentById,getListById,getTaskById,getProjectById,updateList,updateProject,updateTask,deleteComment,deleteList,deleteMember,deleteProject,deleteTask,searchFilters} = require("../controllers")
+const {getActivityLog,createComment,createList,createTask,addMember,getAllComments,getAllLists,getAllProjects,getAllTasks,getCommentById,getListById,getTaskById,getProjectById,updateList,updateProject,updateTask,deleteComment,deleteList,deleteMember,deleteProject,deleteTask,searchFilters} = require("../controllers")
 
 /// C
 
@@ -21,19 +21,21 @@ router.get("/comment/:id",getCommentById)  // get comment by id
 router.get("/list/:id",getListById)  // get list by id
 router.get("/task/:id",getTaskById)  // get task by id
 router.get("/project/:id",getProjectById)  // get project by id
+router.get("/activitylog",getActivityLog) // get activity log
 
 
 /// U
 
 router.patch("/task/:id",updateTask)  // edit task
 router.patch("/list/:id",updateList)  // edit list
-router.patch("/project/:id",updateProject)  // edit proje
+router.patch("/project/:id",updateProject)  // edit project 
+
 /// D
 
 router.delete("/list/:id",deleteList)  
 router.delete("/task/:id",deleteTask)
 router.delete("/project/:id",deleteProject)
-router.delete("/comment/:id",deleteComment)
+router.delete("/comment/:id",deleteComment)  
 router.delete("/member",deleteMember)  // delete member by body parameter
 
 
