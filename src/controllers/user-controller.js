@@ -88,7 +88,7 @@ exports.createProject = async (req, res, next) => {
     try {
       const { projectName, images } = req.body; 
       const userId = req.user.id; 
-      console.log(images); 
+      console.log("Images received:", images); 
   
       if (!userId) {
         return next(createError(403, "User not authenticated"));
@@ -100,24 +100,24 @@ exports.createProject = async (req, res, next) => {
         data: {
           projectName: projectName,
           userId: userId,
-        //   images: {
-        //     create: images.map((item) => ({
-        //       asset_id: item.asset_id,
-        //       public_id: item.public_id,
-        //       url: item.url,
-        //       secure_url: item.secure_url,
-        //     })),
-        //   },
+          images: {
+            create: {
+              asset_id: images[0].asset_id,
+              public_id: images[0].public_id,
+              url: images[0].url,
+              secure_url: images[0].secure_url,
+            },
+          }
         },
       });
-
+  
       await prisma.groupProject.create({
         data: {
-          userId : userId,
+          userId: userId,
           projectId: project.id,
-          role: "OWNER"
-        }
-      })
+          role: "OWNER",
+        },
+      });
   
       const userResponse = {
         id: userId,
