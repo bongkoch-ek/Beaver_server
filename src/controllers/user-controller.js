@@ -86,7 +86,7 @@ exports.deleteUser = async (req, res, next) => {
 // Create a project
 exports.createProject = async (req, res, next) => {
     try {
-      const { projectName, images } = req.body; 
+      const { projectName, images , asset_id , public_id , url , secure_url } = req.body; 
       const userId = req.user.id; 
       console.log("Images received:", images); 
   
@@ -102,10 +102,10 @@ exports.createProject = async (req, res, next) => {
           userId: userId,
           images: {
             create: {
-              asset_id: images[0].asset_id,
-              public_id: images[0].public_id,
-              url: images[0].url,
-              secure_url: images[0].secure_url,
+              asset_id: asset_id,
+              public_id: public_id,
+              url: url,
+              secure_url: secure_url,
             },
           }
         },
