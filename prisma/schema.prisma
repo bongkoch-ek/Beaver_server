@@ -36,8 +36,7 @@ model Project {
   updatedAt   DateTime @updatedAt @map("updated_at") @db.Timestamp(0)
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId      Int
-  images      Image?   @relation(fields: [imageId], references: [id], onDelete: Cascade)
-  imageId     Int?
+  images      Image[]
 
   list         List[]
   groupProject GroupProject[]
@@ -76,8 +75,7 @@ model Task {
   userId      Int
   list        List      @relation(fields: [listId], references: [id], onDelete: Cascade)
   listId      Int
-  Image       Image?    @relation(fields: [imageId], references: [id], onDelete: Cascade)
-  imageId     Int?
+  images      Image[]
 
   comment Comment[]
   webLink Weblink[]
@@ -132,20 +130,21 @@ model Image {
   secure_url String
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt @db.Timestamp(0)
-
-  project Project[]
-  task    Task[]
+  project    Project? @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  projectId  Int?
+  task       Task?    @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  taskId     Int?
 
   @@map("image")
 }
 
 model ActivityLog {
-  id        Int      @id @default(autoincrement())
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId    Int
-  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  projectId Int
-  recentlyTime DateTime  @default(now()) @map("recently_time")
+  id           Int      @id @default(autoincrement())
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId       Int
+  project      Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  projectId    Int
+  recentlyTime DateTime @default(now()) @map("recently_time")
 
   @@map("activity_log")
 }
