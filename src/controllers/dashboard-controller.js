@@ -9,8 +9,24 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-
 // C
+
+exports.createActivityLog = async (req, res, next) => {
+  try {
+    const { projectId } = req.body;
+    const userId = req.user.id;
+
+    const activityLog = await prisma.activityLog.create({
+      data: {
+        project: { connect: { id: projectId } },
+        user: { connect: { id: userId } },
+      },
+    });
+    res.status(201).json(activityLog);
+  } catch (err) {
+    next(err);
+  }
+};
 
 exports.createTask = async (req, res, next) => {
   try {
@@ -116,24 +132,24 @@ exports.addMember = async (req, res, next) => {
 exports.getActivityLog = async (req, res, next) => {
   try {
     const userId = req.user.id;
-    console.log(userId)
+    console.log(userId);
     const activityLog = await prisma.activityLog.findMany({
-      distinct: ['projectId'],
+      distinct: ["projectId"],
       where: {
-        userId: userId
+        userId: userId,
       },
       include: {
         project: {
           select: {
             id: true,
             projectName: true,
-          }
-        }
+          },
+        },
       },
       orderBy: {
-        createdAt: 'desc'
-      }
-    })
+        createdAt: "desc",
+      },
+    });
 
     // const distinctProjects = [...new Set(activityLog.map(log => log.project.id))];
     const distinctProjects = [...new Set(activityLog)];
@@ -143,13 +159,13 @@ exports.getActivityLog = async (req, res, next) => {
       success: true,
       data: {
         activityLog,
-        distinctProjects
-      }
+        distinctProjects,
+      },
     });
   } catch (err) {
     next(err);
   }
-}
+};
 
 exports.getTaskById = async (req, res, next) => {
   try {
@@ -229,10 +245,10 @@ exports.getProjectById = async (req, res, next) => {
       where: { id },
       include: {
         list: {
-          include : {task : true}
+          include: { task: true },
         },
         user: true,
-        groupProject: true
+        groupProject: true,
       },
     });
     if (!project) {
@@ -267,8 +283,8 @@ exports.getAllProjects = async (req, res, next) => {
             email: true,
             displayName: true,
             fullname: true,
-          }
-        }
+          },
+        },
       },
     });
     res.status(200).json(projects);
@@ -410,12 +426,11 @@ exports.uploadImages = async (req, res, next) => {
       resource_type: "auto",
       folder: "Beaver",
     });
-    res.send(result)
+    res.send(result);
   } catch (err) {
     next(err);
   }
 };
-
 
 exports.removeImages = async (req, res, next) => {
   try {
@@ -436,14 +451,27 @@ const handleQuery = async (req, res, query) => {
         email: {
           contains: query,
         },
+        AND: {
+          OR: [
+            {
+              displayName: {
+                contains: query,
+              },
+            },
+            {
+              fullname: {
+                contains: query,
+              },
+            },
+          ],
+        }
       },
       select: {
         id: true,
         email: true,
         displayName: true,
         fullname: true,
-      }
-
+      },
     });
     res.send(member);
   } catch (err) {
