@@ -56,6 +56,7 @@ exports.createList = async (req, res, next) => {
   try {
     const { name,status, projectId } = req.body;
     const userId = req.user.id;
+    console.log(req.body)
 
     if (!name || !projectId) {
       return createError(400, "Name and Project ID are required");
@@ -63,9 +64,9 @@ exports.createList = async (req, res, next) => {
 
     const list = await prisma.list.create({
       data: {
-        name,
-        project: { connect: { id: projectId } },
-        creator: { connect: { id: userId } },
+        title:name,
+        projectId: projectId  ,
+        userId: userId  ,
         status
       },
     });
