@@ -130,6 +130,7 @@ exports.createProject = async (req, res, next) => {
           id: project.id,
           projectName: project.projectName,
           user: userResponse, 
+          images: project.images,
         },
       });
     } catch (err) {
