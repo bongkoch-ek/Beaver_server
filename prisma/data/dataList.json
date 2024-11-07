@@ -2,55 +2,55 @@
     {
     "title": "Todo",
     "status": "TODO",
-    "userId": 20,
-    "projectId": 23
+    "userId": 2,
+    "projectId": 1
   },
   {
     "title": "In Progress",
     "status": "INPROGRESS",
-    "userId": 20,
-    "projectId": 23
+    "userId": 2,
+    "projectId": 1
   },
   {
     "title": "Done",
     "status": "DONE",
-    "userId": 20,
-    "projectId": 23
+    "userId": 2,
+    "projectId": 1
   },
   {
     "title": "Todo",
     "status": "TODO",
-    "userId": 21,
-    "projectId": 24
+    "userId": 3,
+    "projectId": 2
   },
   {
     "title": "In Progress",
     "status": "INPROGRESS",
-    "userId": 21,
-    "projectId": 24
+    "userId": 3,
+    "projectId": 2
   },
   {
     "title": "Done",
     "status": "DONE",
-    "userId": 21,
-    "projectId": 24
+    "userId": 3,
+    "projectId": 2
   },
   {
     "title": "Todo",
     "status": "TODO",
-    "userId": 22,
-    "projectId": 25
+    "userId": 4,
+    "projectId": 3
   },
   {
     "title": "In Progress",
     "status": "INPROGRESS",
-    "userId": 22,
-    "projectId": 25
+    "userId": 4,
+    "projectId": 3
   },
   {
     "title": "Done",
     "status": "DONE",
-    "userId": 22,
-    "projectId": 25
+    "userId": 4,
+    "projectId": 3
   }
 ]
