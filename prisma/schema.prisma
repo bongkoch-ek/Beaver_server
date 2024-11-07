@@ -124,10 +124,10 @@ enum ROLE {
 
 model Image {
   id         Int      @id @default(autoincrement())
-  asset_id   String
-  public_id  String
-  url        String
-  secure_url String
+  asset_id   String?
+  public_id  String?
+  url        String?
+  secure_url String?
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt @db.Timestamp(0)
   project    Project? @relation(fields: [projectId], references: [id], onDelete: Cascade)
