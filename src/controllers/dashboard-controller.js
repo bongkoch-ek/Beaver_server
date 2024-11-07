@@ -38,7 +38,7 @@ exports.createTask = async (req, res, next) => {
 
 exports.createList = async (req, res, next) => {
   try {
-    const { name, projectId } = req.body;
+    const { name,status, projectId } = req.body;
     const userId = req.user.id;
 
     if (!name || !projectId) {
@@ -50,6 +50,7 @@ exports.createList = async (req, res, next) => {
         name,
         project: { connect: { id: projectId } },
         creator: { connect: { id: userId } },
+        status
       },
     });
 
