@@ -1,6 +1,6 @@
 const { express } = require("../model");
 const router = express.Router();
-const {getActivityLog,createComment,createList,createTask,addMember,getAllComments,getAllLists,getAllProjects,getAllTasks,getCommentById,getListById,getTaskById,getProjectById,updateList,updateProject,updateTask,deleteComment,deleteList,deleteMember,deleteProject,deleteTask,searchFilters} = require("../controllers")
+const {getActivityLog,createComment,createList,createTask,addMember,getAllComments,getAllLists,getAllProjects,getAllTasks,getCommentById,getListById,getTaskById,getProjectById,updateList,updateProject,updateTask,deleteComment,deleteList,deleteMember,deleteProject,deleteTask,searchFilters, createActivityLog} = require("../controllers")
 
 /// C
 
@@ -9,6 +9,7 @@ router.post("/create-list",createList)
 router.post("/create-comment",createComment)  // create comment
 router.post("/add-member",addMember) // add member to project
 router.post("/search",searchFilters) // use this api for search
+router.post("/create-activitylog",createActivityLog) // create activity log
 
 
 /// R 
