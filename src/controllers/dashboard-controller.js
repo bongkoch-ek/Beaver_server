@@ -4,11 +4,11 @@ const { cloudinary } = require("../model");
 
 // cloudinary config
 cloudinary.config({
-    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-    api_key: process.env.CLOUDINARY_API_KEY,
-    api_secret: process.env.CLOUDINARY_API_SECRET,
-  });
-  
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
+
 
 // C
 
@@ -84,7 +84,7 @@ exports.createComment = async (req, res, next) => {
 
 exports.addMember = async (req, res, next) => {
   try {
-    const { projectId , userId } = req.body;
+    const { projectId, userId } = req.body;
 
     if (!projectId || !userId) {
       return next(createError(400, "Project ID and User ID are required"));
@@ -114,41 +114,41 @@ exports.addMember = async (req, res, next) => {
 // R
 
 exports.getActivityLog = async (req, res, next) => {
-    try {
-        const userId = req.user.id; 
-        console.log(userId)
-        const activityLog = await prisma.activityLog.findMany({
-            distinct: ['projectId'],
-            where: {
-                userId: userId
-            },
-            include: {
-                project: {
-                    select: {
-                        id: true,
-                        projectName: true,
-                    }
-                }
-            },
-            orderBy: {
-                createdAt: 'desc' 
-            }
-        })
+  try {
+    const userId = req.user.id;
+    console.log(userId)
+    const activityLog = await prisma.activityLog.findMany({
+      distinct: ['projectId'],
+      where: {
+        userId: userId
+      },
+      include: {
+        project: {
+          select: {
+            id: true,
+            projectName: true,
+          }
+        }
+      },
+      orderBy: {
+        createdAt: 'desc'
+      }
+    })
 
-        // const distinctProjects = [...new Set(activityLog.map(log => log.project.id))];
-        const distinctProjects = [...new Set(activityLog)];
+    // const distinctProjects = [...new Set(activityLog.map(log => log.project.id))];
+    const distinctProjects = [...new Set(activityLog)];
 
-        // Return the activity log and distinct project IDs
-        res.status(200).json({
-            success: true,
-            data: {
-                activityLog,
-                distinctProjects
-            }
-        });
-    } catch (err) {
-        next(err);
-    }
+    // Return the activity log and distinct project IDs
+    res.status(200).json({
+      success: true,
+      data: {
+        activityLog,
+        distinctProjects
+      }
+    });
+  } catch (err) {
+    next(err);
+  }
 }
 
 exports.getTaskById = async (req, res, next) => {
@@ -227,7 +227,13 @@ exports.getProjectById = async (req, res, next) => {
     const id = Number(req.params.id);
     const project = await prisma.project.findUnique({
       where: { id },
-    //   include: { members: true },
+      include: {
+        list: {
+          include : {task : true}
+        },
+        user: true,
+        groupProject: true
+      },
     });
     if (!project) {
       return createError(404, "Project not found");
@@ -253,15 +259,16 @@ exports.getAllProjects = async (req, res, next) => {
   try {
     const userId = req.user.id;
     const projects = await prisma.groupProject.findMany({
-      where: { userId : userId },
+      where: { userId: userId },
       include: {
-        project : true,
-        user : {
-          select :{
-          email : true ,
-          displayName : true,
-          fullname : true ,
-        }}
+        project: true,
+        user: {
+          select: {
+            email: true,
+            displayName: true,
+            fullname: true,
+          }
+        }
       },
     });
     res.status(200).json(projects);
@@ -411,47 +418,47 @@ exports.uploadImages = async (req, res, next) => {
 
 
 exports.removeImages = async (req, res, next) => {
-    try {
-      const { public_id } = req.body;
-      cloudinary.uploader.destroy(public_id, (result) => {
-        res.send("Remove image succesfull");
-      });
-    } catch (err) {
-      next(err);
-    }
-  };
+  try {
+    const { public_id } = req.body;
+    cloudinary.uploader.destroy(public_id, (result) => {
+      res.send("Remove image succesfull");
+    });
+  } catch (err) {
+    next(err);
+  }
+};
 
-  // search section
-  const handleQuery = async (req, res, query) => {
-    try {
-      const member = await prisma.user.findMany({
-        where: {
-          email: {
-            contains: query,
-          },
+// search section
+const handleQuery = async (req, res, query) => {
+  try {
+    const member = await prisma.user.findMany({
+      where: {
+        email: {
+          contains: query,
         },
-        select: {
-          id: true,
-          email: true,
-          displayName: true,
-          fullname: true,
-        }
-        
-      });
-      res.send(member);
-    } catch (err) {
-      next(err);
-    }
-  };
-
-  exports.searchFilters = async (req, res, next) => {
-    try {
-      const { query } = req.body;
-      if (query) {
-        console.log("query :", query);
-        await handleQuery(req, res, query);
+      },
+      select: {
+        id: true,
+        email: true,
+        displayName: true,
+        fullname: true,
       }
-    } catch (err) {
-      next(err);
+
+    });
+    res.send(member);
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.searchFilters = async (req, res, next) => {
+  try {
+    const { query } = req.body;
+    if (query) {
+      console.log("query :", query);
+      await handleQuery(req, res, query);
     }
-  };
+  } catch (err) {
+    next(err);
+  }
+};
