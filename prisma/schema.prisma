@@ -113,8 +113,15 @@ model GroupProject {
   userId    Int
   project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
   projectId Int
+  status    STATUSPENDING @default(PENDING)
+  expiredAt DateTime? @map("expired_at") 
 
   @@map("group_project")
+}
+
+enum STATUSPENDING {
+  PENDING
+  ACTIVE
 }
 
 enum ROLE {
