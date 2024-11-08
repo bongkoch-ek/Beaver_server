@@ -116,6 +116,7 @@ exports.createProject = async (req, res, next) => {
           userId: userId,
           projectId: project.id,
           role: "OWNER",
+          status : "ACTIVE"
         },
       });
   

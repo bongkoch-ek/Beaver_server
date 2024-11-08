@@ -15,10 +15,9 @@ exports.createActivityLog = async (req, res, next) => {
   try {
     const { projectId } = req.body;
     const userId = req.user.id;
-
     const activityLog = await prisma.activityLog.create({
       data: {
-        project: { connect: { id: projectId } },
+        project: { connect: { id: +projectId } },
         user: { connect: { id: userId } },
       },
     });
@@ -54,8 +53,9 @@ exports.createTask = async (req, res, next) => {
 
 exports.createList = async (req, res, next) => {
   try {
-    const { name, projectId } = req.body;
+    const { name, status, projectId } = req.body;
     const userId = req.user.id;
+    console.log(req.body)
 
     if (!name || !projectId) {
       return createError(400, "Name and Project ID are required");
@@ -63,9 +63,10 @@ exports.createList = async (req, res, next) => {
 
     const list = await prisma.list.create({
       data: {
-        name,
-        project: { connect: { id: projectId } },
-        creator: { connect: { id: userId } },
+        title: name,
+        projectId: projectId,
+        userId: userId,
+        status
       },
     });
 
@@ -292,6 +293,40 @@ exports.getAllProjects = async (req, res, next) => {
     next(err);
   }
 };
+
+exports.getTodayTask = async (req, res, next) => {
+  try {
+    const userId = req.user.id;
+    const today = (new Date().toISOString().split('T')[0])
+    const task = await prisma.task.findMany({
+      where: {
+        userId,
+        dueDate: {
+          lte: new Date(today),
+          gte: new Date(today)
+        }
+      },
+      include: {
+        list: {
+          include: {
+            project: {
+              select: {
+                projectName: true
+              }
+            }
+          },
+          // select: {
+          //   title: true,
+
+          // }
+        }
+      }
+    })
+    res.status(200).json(task);
+  } catch (err) {
+    next(err)
+  }
+}
 
 // U
 
