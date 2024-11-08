@@ -30,7 +30,8 @@ exports.createActivityLog = async (req, res, next) => {
 
 exports.createTask = async (req, res, next) => {
   try {
-    const { title, description, dueDate, listId, priority } = req.body;
+    const { title, listId } = req.body;
+    const userId = req.user.id;
 
     if (!title || !listId) {
       return createError(400, "Title and List ID are required");
@@ -38,10 +39,8 @@ exports.createTask = async (req, res, next) => {
 
     const task = await prisma.task.create({
       data: {
+        user: { connect: { id: userId } },
         title,
-        description,
-        dueDate,
-        priority,
         list: { connect: { id: listId } },
       },
     });
@@ -464,7 +463,7 @@ const handleQuery = async (req, res, query) => {
               },
             },
           ],
-        }
+        },
       },
       select: {
         id: true,
