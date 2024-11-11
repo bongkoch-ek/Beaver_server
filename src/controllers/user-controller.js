@@ -25,7 +25,8 @@ exports.getUser = async (req, res, next) => {
       next(err);
     }
   };
-  
+
+
 
 // List all users
 exports.listUser = async (req, res, next) => {
@@ -117,7 +118,7 @@ exports.createProject = async (req, res, next) => {
           projectId: project.id,
           role: "OWNER",
           status : "ACTIVE"
-        },
+        }
       });
   
       const userResponse = {
