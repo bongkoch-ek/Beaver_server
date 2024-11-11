@@ -1,6 +1,6 @@
 const { express } = require("../model");
 const router = express.Router();
-const {getActivityLog,createComment,createList,createTask,addMember,getAllComments,getAllLists,getAllProjects,getAllTasks,getCommentById,getListById,getTaskById,getProjectById,updateList,updateProject,updateTask,deleteComment,deleteList,deleteMember,deleteProject,deleteTask,searchFilters, createActivityLog, getTodayTask} = require("../controllers");
+const {getActivityLog,createComment,createList,createTask,addMember,getAllComments,getAllLists,getAllProjects,getAllTasks,getCommentById,getListById,getTaskById,getProjectById,updateList,updateProject,updateTask,deleteComment,deleteList,deleteMember,deleteProject,deleteTask,searchFilters, createActivityLog, getTodayTask,updateStatusMember} = require("../controllers");
 
 /// C
 
@@ -31,6 +31,7 @@ router.get("/today-task",getTodayTask) // get activity log
 router.patch("/task/:id",updateTask)  // edit task
 router.patch("/list/:id",updateList)  // edit list
 router.patch("/project/:id",updateProject)  // edit project 
+router.patch("/status-member/:id",updateStatusMember)  // edit status member
 
 /// D
 
