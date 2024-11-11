@@ -99,33 +99,37 @@ exports.createComment = async (req, res, next) => {
 };
 
 exports.addMember = async (req, res, next) => {
-  try {
-    const { projectId, userId } = req.body;
+    try {
+      const {projectId,userId} = req.body
 
-    if (!projectId || !userId) {
-      return next(createError(400, "Project ID and User ID are required"));
+      console.log(req.body)
+  
+      if (!projectId || !userId) {
+        return next(createError(400, "Project ID and User ID are required"));
+      }
+  
+      const project = await prisma.groupProject.findUnique({
+        where: { id: +projectId.projectId },
+      });
+  
+      if (!project) {
+        return next(createError(404, "Project not found"));
+      }
+  
+      await prisma.groupProject.update({
+        where: { id: +projectId.projectId },
+        data: {
+            user: {
+              connect: { id: userId },
+            }
+        }
+      });
+  
+      res.status(200).json({ message: "Member added successfully" });
+    } catch (err) {
+      next(err);
     }
-
-    const project = await prisma.groupProject.findUnique({
-      where: { id: projectId },
-    });
-
-    if (!project) {
-      return createError(404, "Project not found");
-    }
-
-    await prisma.groupProject.update({
-      where: { id: projectId },
-      data: {
-        members: { connect: { id: userId } },
-      },
-    });
-
-    res.status(200).json({ message: "Member added successfully" });
-  } catch (err) {
-    next(err);
-  }
-};
+  };
 //#endregion
 
 // R
@@ -385,6 +389,22 @@ exports.updateProject = async (req, res, next) => {
     next(err);
   }
 };
+
+exports.updateStatusMember = async (req,res,next) => {
+    try {
+        const {id} = +req.params.id;
+        const {status} = req.body;
+        const member = await prisma.groupProject.update({
+          where: {id},
+            data: {
+                status: status
+            }
+        })
+        res.status(200).json(member);
+    } catch (err) {
+        next(err);
+    }
+}
 //#endregion
 
 // D
