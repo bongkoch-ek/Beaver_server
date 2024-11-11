@@ -10,7 +10,7 @@ cloudinary.config({
 });
 
 // C
-
+//#region Create
 exports.createActivityLog = async (req, res, next) => {
   try {
     const { projectId } = req.body;
@@ -126,13 +126,13 @@ exports.addMember = async (req, res, next) => {
     next(err);
   }
 };
+//#endregion
 
 // R
-
+//#region  Reading
 exports.getActivityLog = async (req, res, next) => {
   try {
     const userId = req.user.id;
-    console.log(userId);
     const activityLog = await prisma.activityLog.findMany({
       distinct: ["projectId"],
       where: {
@@ -140,26 +140,29 @@ exports.getActivityLog = async (req, res, next) => {
       },
       include: {
         project: {
-          select: {
-            id: true,
-            projectName: true,
-          },
+          include: {
+            list : {
+              include : {
+                task : true
+              }
+            }
+          }
         },
       },
       orderBy: {
-        createdAt: "desc",
+        recentlyTime: "desc",
       },
     });
 
     // const distinctProjects = [...new Set(activityLog.map(log => log.project.id))];
-    const distinctProjects = [...new Set(activityLog)];
+    // const distinctProjects = [...new Set(activityLog)];
 
     // Return the activity log and distinct project IDs
     res.status(200).json({
       success: true,
       data: {
         activityLog,
-        distinctProjects,
+        // distinctProjects,
       },
     });
   } catch (err) {
@@ -297,11 +300,14 @@ exports.getTodayTask = async (req, res, next) => {
   try {
     const userId = req.user.id;
     const today = (new Date().toISOString().split('T')[0])
+    let tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    tomorrow = tomorrow.toISOString().split('T')[0]
     const task = await prisma.task.findMany({
       where: {
         userId,
         dueDate: {
-          lte: new Date(today),
+          lte: new Date(tomorrow),
           gte: new Date(today)
         }
       },
@@ -326,9 +332,10 @@ exports.getTodayTask = async (req, res, next) => {
     next(err)
   }
 }
+//#endregion
 
 // U
-
+//#region update
 exports.updateTask = async (req, res, next) => {
   try {
     const { id } = req.params;
@@ -378,9 +385,10 @@ exports.updateProject = async (req, res, next) => {
     next(err);
   }
 };
+//#endregion
 
 // D
-
+//#region Delete
 exports.deleteList = async (req, res, next) => {
   try {
     const { id } = req.params;
@@ -451,8 +459,9 @@ exports.deleteMember = async (req, res, next) => {
     next(err);
   }
 };
+//#endregion
 
-// images section
+//#region  images section
 exports.uploadImages = async (req, res, next) => {
   try {
     const result = await cloudinary.uploader.upload(req.body.image, {
@@ -476,8 +485,9 @@ exports.removeImages = async (req, res, next) => {
     next(err);
   }
 };
+//#endregion
 
-// search section
+//#region search section
 const handleQuery = async (req, res, query) => {
   try {
     const member = await prisma.user.findMany({
@@ -524,3 +534,4 @@ exports.searchFilters = async (req, res, next) => {
     next(err);
   }
 };
+//#endregion
