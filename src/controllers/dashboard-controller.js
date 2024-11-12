@@ -355,7 +355,25 @@ exports.getTodayTask = async (req, res, next) => {
   } catch (err) {
     next(err);
   }
+}
+
+exports.getAllUser = async (req, res, next) => {
+  try {
+    const users = await prisma.user.findMany({
+      select: {
+        id: true,
+        email: true,
+        displayName: true,
+        fullname: true,
+      },
+    });
+    res.status(200).json(users);
+  } catch (err) {
+    next(err);
+  }
 };
+
+
 //#endregion
 
 // U
