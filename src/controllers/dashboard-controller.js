@@ -99,37 +99,38 @@ exports.createComment = async (req, res, next) => {
 };
 
 exports.addMember = async (req, res, next) => {
-  try {
-    const { projectId, userId } = req.body
-
-    console.log(req.body)
-
-    if (!projectId || !userId) {
-      return next(createError(400, "Project ID and User ID are required"));
-    }
-
-    const project = await prisma.groupProject.findUnique({
-      where: { id: +projectId.projectId },
-    });
-
-    if (!project) {
-      return next(createError(404, "Project not found"));
-    }
-
-    await prisma.groupProject.update({
-      where: { id: +projectId.projectId },
-      data: {
-        user: {
-          connect: { id: userId },
-        }
+    try {
+      const { projectId, userId } = req.body; 
+  
+      console.log("check body", req.body);
+  
+      if (!projectId || !userId) {
+        return next(createError(400, "Project ID and User ID are required"));
       }
-    });
-
-    res.status(200).json({ message: "Member added successfully" });
-  } catch (err) {
-    next(err);
-  }
-};
+  
+      const project = await prisma.groupProject.findUnique({
+        where: { id: +projectId },
+      });
+  
+      if (!project) {
+        return next(createError(404, "Project not found"));
+      }
+  
+      await prisma.groupProject.update({
+        where: { id: +projectId },
+        data: {
+          user: {
+            connect: { id: userId },
+          },
+        },
+      });
+  
+      res.status(200).json({ message: "Member added successfully" });
+    } catch (err) {
+      next(err);
+    }
+  };
+  
 //#endregion
 
 // R
@@ -356,6 +357,24 @@ exports.getTodayTask = async (req, res, next) => {
     next(err)
   }
 }
+
+exports.getAllUser = async (req, res, next) => {
+  try {
+    const users = await prisma.user.findMany({
+      select: {
+        id: true,
+        email: true,
+        displayName: true,
+        fullname: true,
+      },
+    });
+    res.status(200).json(users);
+  } catch (err) {
+    next(err);
+  }
+};
+
+
 //#endregion
 
 // U
