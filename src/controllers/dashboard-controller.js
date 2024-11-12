@@ -146,9 +146,9 @@ exports.getActivityLog = async (req, res, next) => {
       include: {
         project: {
           include: {
-            list : {
-              include : {
-                task : true
+            list: {
+              include: {
+                task: true
               }
             }
           }
@@ -179,7 +179,27 @@ exports.getTaskById = async (req, res, next) => {
   try {
     const { id } = req.params;
     const task = await prisma.task.findUnique({
-      where: { id },
+      where: { id: +id },
+      include: {
+        user: {
+          select: {
+            id: true,
+            displayName: true
+          }
+        },
+        list: true,
+        comment: {
+          include : {
+            user : {
+              select : {
+                id: true, 
+                displayName: true
+              }
+            }
+          }
+        },
+        webLink: true
+      }
     });
     if (!task) {
       return createError(404, "Task not found");
@@ -362,13 +382,14 @@ exports.getAllUser = async (req, res, next) => {
 exports.updateTask = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const { title, description, dueDate, priority, listId } = req.body;
+    const { title, description, startDate, dueDate, priority, listId } = req.body;
 
     const task = await prisma.task.update({
       where: { id },
       data: {
         title,
         description,
+        startDate,
         dueDate,
         priority,
         list: listId ? { connect: { id: listId } } : undefined,
@@ -409,20 +430,20 @@ exports.updateProject = async (req, res, next) => {
   }
 };
 
-exports.updateStatusMember = async (req,res,next) => {
-    try {
-        const {id} = +req.params.id;
-        const {status} = req.body;
-        const member = await prisma.groupProject.update({
-          where: {id},
-            data: {
-                status: status
-            }
-        })
-        res.status(200).json(member);
-    } catch (err) {
-        next(err);
-    }
+exports.updateStatusMember = async (req, res, next) => {
+  try {
+    const { id } = +req.params.id;
+    const { status } = req.body;
+    const member = await prisma.groupProject.update({
+      where: { id },
+      data: {
+        status: status
+      }
+    })
+    res.status(200).json(member);
+  } catch (err) {
+    next(err);
+  }
 }
 //#endregion
 
