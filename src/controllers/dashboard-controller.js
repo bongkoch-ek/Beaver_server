@@ -100,16 +100,16 @@ exports.createComment = async (req, res, next) => {
 
 exports.addMember = async (req, res, next) => {
     try {
-      const {projectId,userId} = req.body
-
-      console.log(req.body)
+      const { projectId, userId } = req.body; 
+  
+      console.log("check body", req.body);
   
       if (!projectId || !userId) {
         return next(createError(400, "Project ID and User ID are required"));
       }
   
       const project = await prisma.groupProject.findUnique({
-        where: { id: +projectId.projectId },
+        where: { id: +projectId },
       });
   
       if (!project) {
@@ -117,12 +117,12 @@ exports.addMember = async (req, res, next) => {
       }
   
       await prisma.groupProject.update({
-        where: { id: +projectId.projectId },
+        where: { id: +projectId },
         data: {
-            user: {
-              connect: { id: userId },
-            }
-        }
+          user: {
+            connect: { id: userId },
+          },
+        },
       });
   
       res.status(200).json({ message: "Member added successfully" });
@@ -130,6 +130,7 @@ exports.addMember = async (req, res, next) => {
       next(err);
     }
   };
+  
 //#endregion
 
 // R
@@ -336,6 +337,24 @@ exports.getTodayTask = async (req, res, next) => {
     next(err)
   }
 }
+
+exports.getAllUser = async (req, res, next) => {
+  try {
+    const users = await prisma.user.findMany({
+      select: {
+        id: true,
+        email: true,
+        displayName: true,
+        fullname: true,
+      },
+    });
+    res.status(200).json(users);
+  } catch (err) {
+    next(err);
+  }
+};
+
+
 //#endregion
 
 // U

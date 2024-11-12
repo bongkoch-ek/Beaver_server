@@ -1,6 +1,6 @@
 const { express } = require("../model");
 const router = express.Router();
-const {getActivityLog,createComment,createList,createTask,addMember,getAllComments,getAllLists,getAllProjects,getAllTasks,getCommentById,getListById,getTaskById,getProjectById,updateList,updateProject,updateTask,deleteComment,deleteList,deleteMember,deleteProject,deleteTask,searchFilters, createActivityLog, getTodayTask,updateStatusMember} = require("../controllers");
+const {getAllUser,getActivityLog,createComment,createList,createTask,addMember,getAllComments,getAllLists,getAllProjects,getAllTasks,getCommentById,getListById,getTaskById,getProjectById,updateList,updateProject,updateTask,deleteComment,deleteList,deleteMember,deleteProject,deleteTask,searchFilters, createActivityLog, getTodayTask,updateStatusMember} = require("../controllers");
 
 /// C
 
@@ -24,6 +24,7 @@ router.get("/task/:id",getTaskById)  // get task by id
 router.get("/project/:id",getProjectById)  // get project by id
 router.get("/activitylog",getActivityLog) // get activity log
 router.get("/today-task",getTodayTask) // get activity log
+router.get("/getuser",getAllUser)
 
 
 /// U
