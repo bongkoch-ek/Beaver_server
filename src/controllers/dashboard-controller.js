@@ -186,6 +186,16 @@ exports.getTaskById = async (req, res, next) => {
             displayName: true,
           },
         },
+        assignee: {
+          include : {
+            user: {
+              select : {
+                id: true,
+                displayName: true
+              }
+            }
+          }
+        },
         list: true,
         comment: {
           include: {
@@ -384,7 +394,7 @@ exports.updateTask = async (req, res, next) => {
     const { title, description, startDate, dueDate, priority, listId } =
       req.body;
 
-    const task = await prisma.task.update({
+    await prisma.task.update({
       where: { id: Number(id) },
       data: {
         title,
@@ -394,6 +404,40 @@ exports.updateTask = async (req, res, next) => {
         priority,
         list: listId ? { connect: { id: listId } } : undefined,
       },
+    });
+
+    const task = await prisma.task.findUnique({
+      where: { id: +id },
+      include: {
+        user: {
+          select: {
+            id: true,
+            displayName: true
+          }
+        },
+        assignee: {
+          include : {
+            user: {
+              select : {
+                id: true,
+                displayName: true
+              }
+            }
+          }
+        },
+        list: true,
+        comment: {
+          include : {
+            user : {
+              select : {
+                id: true, 
+                displayName: true
+              }
+            }
+          }
+        },
+        webLink: true
+      }
     });
 
     res.status(200).json(task);
