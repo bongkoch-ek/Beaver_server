@@ -54,7 +54,7 @@ exports.createList = async (req, res, next) => {
   try {
     const { name, status, projectId } = req.body;
     const userId = req.user.id;
-    console.log(req.body)
+    console.log(req.body);
 
     if (!name || !projectId) {
       return createError(400, "Name and Project ID are required");
@@ -65,7 +65,7 @@ exports.createList = async (req, res, next) => {
         title: name,
         projectId: projectId,
         userId: userId,
-        status
+        status,
       },
     });
 
@@ -99,38 +99,37 @@ exports.createComment = async (req, res, next) => {
 };
 
 exports.addMember = async (req, res, next) => {
-    try {
-      const { projectId, userId } = req.body; 
-  
-      console.log("check body", req.body);
-  
-      if (!projectId || !userId) {
-        return next(createError(400, "Project ID and User ID are required"));
-      }
-  
-      const project = await prisma.groupProject.findUnique({
-        where: { id: +projectId },
-      });
-  
-      if (!project) {
-        return next(createError(404, "Project not found"));
-      }
-  
-      await prisma.groupProject.update({
-        where: { id: +projectId },
-        data: {
-          user: {
-            connect: { id: userId },
-          },
-        },
-      });
-  
-      res.status(200).json({ message: "Member added successfully" });
-    } catch (err) {
-      next(err);
+  try {
+    const { projectId, userId } = req.body;
+
+    console.log(req.body);
+
+    if (!projectId || !userId) {
+      return next(createError(400, "Project ID and User ID are required"));
     }
-  };
-  
+
+    const project = await prisma.groupProject.findUnique({
+      where: { id: +projectId.projectId },
+    });
+
+    if (!project) {
+      return next(createError(404, "Project not found"));
+    }
+
+    await prisma.groupProject.update({
+      where: { id: +projectId.projectId },
+      data: {
+        user: {
+          connect: { id: userId },
+        },
+      },
+    });
+
+    res.status(200).json({ message: "Member added successfully" });
+  } catch (err) {
+    next(err);
+  }
+};
 //#endregion
 
 // R
@@ -148,10 +147,10 @@ exports.getActivityLog = async (req, res, next) => {
           include: {
             list: {
               include: {
-                task: true
-              }
-            }
-          }
+                task: true,
+              },
+            },
+          },
         },
       },
       orderBy: {
@@ -184,22 +183,22 @@ exports.getTaskById = async (req, res, next) => {
         user: {
           select: {
             id: true,
-            displayName: true
-          }
+            displayName: true,
+          },
         },
         list: true,
         comment: {
-          include : {
-            user : {
-              select : {
-                id: true, 
-                displayName: true
-              }
-            }
-          }
+          include: {
+            user: {
+              select: {
+                id: true,
+                displayName: true,
+              },
+            },
+          },
         },
-        webLink: true
-      }
+        webLink: true,
+      },
     });
     if (!task) {
       return createError(404, "Task not found");
@@ -324,37 +323,37 @@ exports.getAllProjects = async (req, res, next) => {
 exports.getTodayTask = async (req, res, next) => {
   try {
     const userId = req.user.id;
-    const today = (new Date().toISOString().split('T')[0])
+    const today = new Date().toISOString().split("T")[0];
     let tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
-    tomorrow = tomorrow.toISOString().split('T')[0]
+    tomorrow = tomorrow.toISOString().split("T")[0];
     const task = await prisma.task.findMany({
       where: {
         userId,
         dueDate: {
           lte: new Date(tomorrow),
-          gte: new Date(today)
-        }
+          gte: new Date(today),
+        },
       },
       include: {
         list: {
           include: {
             project: {
               select: {
-                projectName: true
-              }
-            }
+                projectName: true,
+              },
+            },
           },
           // select: {
           //   title: true,
 
           // }
-        }
-      }
-    })
+        },
+      },
+    });
     res.status(200).json(task);
   } catch (err) {
-    next(err)
+    next(err);
   }
 }
 
@@ -382,10 +381,11 @@ exports.getAllUser = async (req, res, next) => {
 exports.updateTask = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const { title, description, startDate, dueDate, priority, listId } = req.body;
+    const { title, description, startDate, dueDate, priority, listId } =
+      req.body;
 
     const task = await prisma.task.update({
-      where: { id },
+      where: { id: Number(id) },
       data: {
         title,
         description,
@@ -437,14 +437,14 @@ exports.updateStatusMember = async (req, res, next) => {
     const member = await prisma.groupProject.update({
       where: { id },
       data: {
-        status: status
-      }
-    })
+        status: status,
+      },
+    });
     res.status(200).json(member);
   } catch (err) {
     next(err);
   }
-}
+};
 //#endregion
 
 // D
@@ -453,7 +453,7 @@ exports.deleteList = async (req, res, next) => {
   try {
     const { id } = req.params;
     await prisma.list.delete({
-      where: { id },
+      where: { id: Number(id) },
     });
     res.status(204).send();
   } catch (err) {
