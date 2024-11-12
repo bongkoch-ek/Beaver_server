@@ -505,11 +505,11 @@ exports.updateProject = async (req, res, next) => {
 exports.updateStatusMember = async (req, res, next) => {
   try {
     const { id } = +req.params.id;
-    const { status } = req.body;
+    // const { status } = req.body;
     const member = await prisma.groupProject.update({
       where: { id },
       data: {
-        status: status,
+        status: "ACTIVE",
       },
     });
     res.status(200).json(member);
@@ -624,39 +624,43 @@ exports.removeImages = async (req, res, next) => {
 
 //#region search section
 const handleQuery = async (req, res, query) => {
-  try {
-    const member = await prisma.user.findMany({
-      where: {
-        email: {
-          contains: query,
-        },
-        AND: {
+    try {
+      const lowerCaseQuery = query.toLowerCase();
+      const member = await prisma.user.findMany({
+        where: {
           OR: [
             {
+              email: {
+                contains: lowerCaseQuery,
+              },
+            },
+            {
               displayName: {
-                contains: query,
+                contains: lowerCaseQuery,
               },
             },
             {
               fullname: {
-                contains: query,
+                contains: lowerCaseQuery,
               },
             },
           ],
         },
-      },
-      select: {
-        id: true,
-        email: true,
-        displayName: true,
-        fullname: true,
-      },
-    });
-    res.send(member);
-  } catch (err) {
-    next(err);
-  }
-};
+        select: {
+          id: true,
+          email: true,
+          displayName: true,
+          fullname: true,
+        },
+      });
+      res.send(member);
+    } catch (err) {
+      console.error("Error in handleQuery:", err);
+      res.status(500).send({ error: "An error occurred while searching for members." });
+    }
+  };
+  
+  
 
 exports.searchFilters = async (req, res, next) => {
   try {
