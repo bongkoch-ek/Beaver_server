@@ -99,37 +99,38 @@ exports.createComment = async (req, res, next) => {
 };
 
 exports.addMember = async (req, res, next) => {
-  try {
-    const { projectId, userId } = req.body;
-
-    console.log(req.body);
-
-    if (!projectId || !userId) {
-      return next(createError(400, "Project ID and User ID are required"));
-    }
-
-    const project = await prisma.groupProject.findUnique({
-      where: { id: +projectId.projectId },
-    });
-
-    if (!project) {
-      return next(createError(404, "Project not found"));
-    }
-
-    await prisma.groupProject.update({
-      where: { id: +projectId.projectId },
-      data: {
-        user: {
-          connect: { id: userId },
+    try {
+      const { projectId, userId } = req.body; 
+  
+      console.log("check body", req.body);
+  
+      if (!projectId || !userId) {
+        return next(createError(400, "Project ID and User ID are required"));
+      }
+  
+      const project = await prisma.groupProject.findUnique({
+        where: { id: +projectId },
+      });
+  
+      if (!project) {
+        return next(createError(404, "Project not found"));
+      }
+  
+      await prisma.groupProject.update({
+        where: { id: +projectId },
+        data: {
+          user: {
+            connect: { id: userId },
+          },
         },
-      },
-    });
-
-    res.status(200).json({ message: "Member added successfully" });
-  } catch (err) {
-    next(err);
-  }
-};
+      });
+  
+      res.status(200).json({ message: "Member added successfully" });
+    } catch (err) {
+      next(err);
+    }
+  };
+  
 //#endregion
 
 // R
@@ -286,7 +287,8 @@ exports.getProjectById = async (req, res, next) => {
         },
         user: true,
         groupProject: true,
-      },
+        images: true,
+      }
     });
     if (!project) {
       return createError(404, "Project not found");
@@ -461,18 +463,44 @@ exports.updateList = async (req, res, next) => {
 };
 
 exports.updateProject = async (req, res, next) => {
-  try {
-    const { id } = req.params;
-    const project = await prisma.groupProject.update({
-      where: { id },
-      data: req.body,
-    });
-
-    res.status(200).json(project);
-  } catch (err) {
-    next(err);
-  }
-};
+    try {
+      const id = parseInt(req.params.id, 10);
+      const { projectName, images } = req.body;
+      console.log("check images", images);
+      if (isNaN(id)) return next(createError(400, "Invalid project ID"));
+  
+      const updateData = { projectName };
+      if (images && images.length > 0) {
+        updateData.images = {
+          upsert: images.map((image) => ({
+            where: { asset_id: image.asset_id },
+            update: {
+              public_id: image.public_id,
+              url: image.url,
+              secure_url: image.secure_url,
+            },
+            create: {
+              asset_id: image.asset_id,
+              public_id: image.public_id,
+              url: image.url,
+              secure_url: image.secure_url,
+            },
+          })),
+        };
+      }
+  
+      const project = await prisma.project.update({
+        where: { id },
+        data: updateData,
+        include: { images: true },
+      });
+  
+      res.status(200).json({ message: "Project updated successfully", project });
+    } catch (err) {
+      next(err);
+    }
+  };
+  
 
 exports.updateStatusMember = async (req, res, next) => {
   try {
@@ -519,8 +547,11 @@ exports.deleteTask = async (req, res, next) => {
 
 exports.deleteProject = async (req, res, next) => {
   try {
-    const { id } = req.params;
+    const { id } = +req.params;
     await prisma.groupProject.delete({
+      where: { id },
+    });
+    await prisma.project.delete({
       where: { id },
     });
     res.status(204).send();
@@ -552,7 +583,7 @@ exports.deleteMember = async (req, res, next) => {
     await prisma.groupProject.update({
       where: { id: projectId },
       data: {
-        members: {
+        user: {
           disconnect: { id: userId },
         },
       },
