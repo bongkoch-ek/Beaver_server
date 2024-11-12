@@ -27,6 +27,7 @@ model User {
   task         Task[]
   comment      Comment[]
   activityLog  ActivityLog[]
+  assignee     Assignee[]
 }
 
 model Project {
@@ -77,8 +78,9 @@ model Task {
   listId      Int
   images      Image[]
 
-  comment Comment[]
-  webLink Weblink[]
+  comment  Comment[]
+  webLink  Weblink[]
+  assignee Assignee[]
 }
 
 enum Priority {
@@ -107,14 +109,14 @@ model Comment {
 }
 
 model GroupProject {
-  id        Int     @id @default(autoincrement())
-  role      ROLE    @default(MEMBER)
-  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id        Int           @id @default(autoincrement())
+  role      ROLE          @default(MEMBER)
+  user      User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId    Int
-  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  project   Project       @relation(fields: [projectId], references: [id], onDelete: Cascade)
   projectId Int
   status    STATUSPENDING @default(PENDING)
-  expiredAt DateTime? @map("expired_at") 
+  expiredAt DateTime?     @map("expired_at")
 
   @@map("group_project")
 }
@@ -154,4 +156,12 @@ model ActivityLog {
   recentlyTime DateTime @default(now()) @map("recently_time")
 
   @@map("activity_log")
+}
+
+model Assignee {
+  id     Int   @id @default(autoincrement())
+  task   Task? @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  taskId Int?
+  user   User? @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId Int?
 }
