@@ -174,7 +174,7 @@ exports.getTaskById = async (req, res, next) => {
   try {
     const { id } = req.params;
     const task = await prisma.task.findUnique({
-      where: { id },
+      where: { id : +id },
     });
     if (!task) {
       return createError(404, "Task not found");
