@@ -133,7 +133,7 @@ enum ROLE {
 
 model Image {
   id         Int      @id @default(autoincrement())
-  asset_id   String?
+  asset_id   String? @unique
   public_id  String?
   url        String?
   secure_url String?

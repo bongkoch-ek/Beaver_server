@@ -4,6 +4,7 @@ const createError = require("../utils/createError");
 
 exports.auth = async (req, res, next) => {
   try {
+    console.log(req.headers.authorization)
     const authHeader = req.headers.authorization;
     if (!authHeader) {
       return createError(401, "Unauthorized");
