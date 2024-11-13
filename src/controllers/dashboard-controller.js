@@ -395,7 +395,7 @@ exports.getTodayTask = async (req, res, next) => {
   } catch (err) {
     next(err);
   }
-}
+};
 
 exports.getAllUser = async (req, res, next) => {
   try {
@@ -412,7 +412,6 @@ exports.getAllUser = async (req, res, next) => {
     next(err);
   }
 };
-
 
 //#endregion
 
@@ -480,7 +479,7 @@ exports.updateList = async (req, res, next) => {
   try {
     const { id } = req.params;
     const list = await prisma.list.update({
-      where: { id },
+      where: { id: Number(id) },
       data: req.body,
     });
 
@@ -577,7 +576,7 @@ exports.deleteTask = async (req, res, next) => {
   try {
     const { id } = req.params;
     await prisma.task.delete({
-      where: { id },
+      where: { id: Number(id) },
     });
     res.status(204).send();
   } catch (err) {
