@@ -1,6 +1,6 @@
 const { express } = require("../model");
 const router = express.Router();
-const {getAllUser,getActivityLog,createComment,createList,createTask,addMember,getAllComments,getAllLists,getAllProjects,getAllTasks,getCommentById,getListById,getTaskById,getProjectById,updateList,updateProject,updateTask,deleteComment,deleteList,deleteMember,deleteProject,deleteTask,searchFilters, createActivityLog, getTodayTask,updateStatusMember,createWebLink} = require("../controllers");
+const {getAllUser,getActivityLog,createComment,createList,createTask,addMember,getAllComments,getAllLists,getAllProjects,getAllTasks,getCommentById,getListById,getTaskById,getProjectById,updateList,updateProject,updateTask,deleteComment,deleteList,deleteMember,deleteProject,deleteTask,searchFilters, createActivityLog, getTodayTask,updateStatusMember,createWebLink,deleteWebLink} = require("../controllers");
 
 /// C
 
@@ -42,6 +42,7 @@ router.delete("/task/:id",deleteTask)
 router.delete("/project/:id",deleteProject)
 router.delete("/comment/:id",deleteComment)  
 router.delete("/member",deleteMember)  // delete member by body parameter
+router.delete("/weblink/:id",deleteWebLink)
 
 
 
