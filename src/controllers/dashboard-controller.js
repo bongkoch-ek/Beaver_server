@@ -29,7 +29,7 @@ exports.createActivityLog = async (req, res, next) => {
 
 exports.createTask = async (req, res, next) => {
   try {
-    const { title, listId } = req.body;
+    const { title, listId ,} = req.body;
     const userId = req.user.id;
 
     if (!title || !listId) {
@@ -472,6 +472,8 @@ exports.updateTask = async (req, res, next) => {
   }
 };
 
+
+
 exports.updateList = async (req, res, next) => {
   try {
     const { id } = req.params;
@@ -643,8 +645,33 @@ exports.uploadImages = async (req, res, next) => {
     res.send(result);
   } catch (err) {
     next(err);
-  }
+  } 
 };
+
+exports.createTaskImages = async (req,res,next) => {
+  try {
+    
+    const { images, taskId } =req.body;
+    console.log("check image body",images)
+    
+    const data = images.map((image)=>{
+      return {
+        taskId : taskId,
+        asset_id : image.asset_id,
+        public_id : image.public_id,
+        url : image.url,
+        secure_url : image.secure_url,
+      }
+    })
+    const createdImages = await prisma.image.createMany({
+      data : data
+    })
+
+    res.status(200).json(createdImages)
+  } catch (err) {
+    next(err)
+  }
+}
 
 exports.removeImages = async (req, res, next) => {
   try {
