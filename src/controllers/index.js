@@ -1,6 +1,6 @@
 const {register,login,loginGoogle,currentUser} = require('./auth-controller')
 const {getUser,listUser,updateProfile,deleteUser, createProject} = require('./user-controller')
-const {getAllUser,createComment,createList,createTask,addMember,getAllComments,getAllProjects,getAllLists,getAllTasks,getCommentById,getListById,getTaskById,getProjectById,updateList,updateProject,updateTask,deleteComment,deleteList,deleteMember,deleteProject,deleteTask,uploadImages,removeImages,searchFilters, getActivityLog, createActivityLog, getTodayTask,updateStatusMember} = require("./dashboard-controller")
+const {getAllUser,createComment,createList,createTask,addMember,getAllComments,getAllProjects,getAllLists,getAllTasks,getCommentById,getListById,getTaskById,getProjectById,updateList,updateProject,updateTask,deleteComment,deleteList,deleteMember,deleteProject,deleteTask,uploadImages,removeImages,searchFilters, getActivityLog, createActivityLog, getTodayTask,updateStatusMember, createWebLink} = require("./dashboard-controller")
 
 module.exports = {
     register,
@@ -39,5 +39,6 @@ module.exports = {
     getTodayTask,
     currentUser,
     updateStatusMember,
-    getAllUser
+    getAllUser,
+    createWebLink
 }

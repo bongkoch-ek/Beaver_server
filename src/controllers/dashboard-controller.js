@@ -99,38 +99,54 @@ exports.createComment = async (req, res, next) => {
 };
 
 exports.addMember = async (req, res, next) => {
-    try {
-      const { projectId, userId } = req.body; 
-  
-      console.log("check body", req.body);
-  
-      if (!projectId || !userId) {
-        return next(createError(400, "Project ID and User ID are required"));
-      }
-  
-      const project = await prisma.groupProject.findUnique({
-        where: { id: +projectId },
-      });
-  
-      if (!project) {
-        return next(createError(404, "Project not found"));
-      }
-  
-      await prisma.groupProject.update({
-        where: { id: +projectId },
-        data: {
-          user: {
-            connect: { id: userId },
-          },
-        },
-      });
-  
-      res.status(200).json({ message: "Member added successfully" });
-    } catch (err) {
-      next(err);
+  try {
+    const { projectId, userId } = req.body;
+
+    console.log("check body", req.body);
+
+    if (!projectId || !userId) {
+      return next(createError(400, "Project ID and User ID are required"));
     }
-  };
-  
+
+    const project = await prisma.groupProject.findUnique({
+      where: { id: +projectId },
+    });
+
+    if (!project) {
+      return next(createError(404, "Project not found"));
+    }
+
+    await prisma.groupProject.update({
+      where: { id: +projectId },
+      data: {
+        user: {
+          connect: { id: userId },
+        },
+      },
+    });
+
+    res.status(200).json({ message: "Member added successfully" });
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.createWebLink = async (req, res, next) => {
+  try {
+    const { taskId, url } = req.body;
+    // const userId = req.user.id;
+    const activityLog = await prisma.weblink.create({
+      data: {
+        taskId: +taskId,
+        url
+      },
+    });
+    res.status(201).json(activityLog);
+  } catch (err) {
+    next(err);
+  }
+};
+
 //#endregion
 
 // R
@@ -188,9 +204,9 @@ exports.getTaskById = async (req, res, next) => {
           },
         },
         assignee: {
-          include : {
+          include: {
             user: {
-              select : {
+              select: {
                 id: true,
                 displayName: true
               }
@@ -209,6 +225,8 @@ exports.getTaskById = async (req, res, next) => {
           },
         },
         webLink: true,
+        images: true,
+
       },
     });
     if (!task) {
@@ -283,7 +301,13 @@ exports.getProjectById = async (req, res, next) => {
       where: { id },
       include: {
         list: {
-          include: { task: true },
+          include: {
+            task: {
+              include: {
+                images: true,
+              }
+            }
+          },
         },
         user: true,
         groupProject: true,
@@ -418,9 +442,9 @@ exports.updateTask = async (req, res, next) => {
           }
         },
         assignee: {
-          include : {
+          include: {
             user: {
-              select : {
+              select: {
                 id: true,
                 displayName: true
               }
@@ -429,10 +453,10 @@ exports.updateTask = async (req, res, next) => {
         },
         list: true,
         comment: {
-          include : {
-            user : {
-              select : {
-                id: true, 
+          include: {
+            user: {
+              select: {
+                id: true,
                 displayName: true
               }
             }
@@ -463,44 +487,44 @@ exports.updateList = async (req, res, next) => {
 };
 
 exports.updateProject = async (req, res, next) => {
-    try {
-      const id = parseInt(req.params.id, 10);
-      const { projectName, images } = req.body;
-      console.log("check images", images);
-      if (isNaN(id)) return next(createError(400, "Invalid project ID"));
-  
-      const updateData = { projectName };
-      if (images && images.length > 0) {
-        updateData.images = {
-          upsert: images.map((image) => ({
-            where: { asset_id: image.asset_id },
-            update: {
-              public_id: image.public_id,
-              url: image.url,
-              secure_url: image.secure_url,
-            },
-            create: {
-              asset_id: image.asset_id,
-              public_id: image.public_id,
-              url: image.url,
-              secure_url: image.secure_url,
-            },
-          })),
-        };
-      }
-  
-      const project = await prisma.project.update({
-        where: { id },
-        data: updateData,
-        include: { images: true },
-      });
-  
-      res.status(200).json({ message: "Project updated successfully", project });
-    } catch (err) {
-      next(err);
+  try {
+    const id = parseInt(req.params.id, 10);
+    const { projectName, images } = req.body;
+    console.log("check images", images);
+    if (isNaN(id)) return next(createError(400, "Invalid project ID"));
+
+    const updateData = { projectName };
+    if (images && images.length > 0) {
+      updateData.images = {
+        upsert: images.map((image) => ({
+          where: { asset_id: image.asset_id },
+          update: {
+            public_id: image.public_id,
+            url: image.url,
+            secure_url: image.secure_url,
+          },
+          create: {
+            asset_id: image.asset_id,
+            public_id: image.public_id,
+            url: image.url,
+            secure_url: image.secure_url,
+          },
+        })),
+      };
     }
-  };
-  
+
+    const project = await prisma.project.update({
+      where: { id },
+      data: updateData,
+      include: { images: true },
+    });
+
+    res.status(200).json({ message: "Project updated successfully", project });
+  } catch (err) {
+    next(err);
+  }
+};
+
 
 exports.updateStatusMember = async (req, res, next) => {
   try {
@@ -624,43 +648,43 @@ exports.removeImages = async (req, res, next) => {
 
 //#region search section
 const handleQuery = async (req, res, query) => {
-    try {
-      const lowerCaseQuery = query.toLowerCase();
-      const member = await prisma.user.findMany({
-        where: {
-          OR: [
-            {
-              email: {
-                contains: lowerCaseQuery,
-              },
+  try {
+    const lowerCaseQuery = query.toLowerCase();
+    const member = await prisma.user.findMany({
+      where: {
+        OR: [
+          {
+            email: {
+              contains: lowerCaseQuery,
             },
-            {
-              displayName: {
-                contains: lowerCaseQuery,
-              },
+          },
+          {
+            displayName: {
+              contains: lowerCaseQuery,
             },
-            {
-              fullname: {
-                contains: lowerCaseQuery,
-              },
+          },
+          {
+            fullname: {
+              contains: lowerCaseQuery,
             },
-          ],
-        },
-        select: {
-          id: true,
-          email: true,
-          displayName: true,
-          fullname: true,
-        },
-      });
-      res.send(member);
-    } catch (err) {
-      console.error("Error in handleQuery:", err);
-      res.status(500).send({ error: "An error occurred while searching for members." });
-    }
-  };
-  
-  
+          },
+        ],
+      },
+      select: {
+        id: true,
+        email: true,
+        displayName: true,
+        fullname: true,
+      },
+    });
+    res.send(member);
+  } catch (err) {
+    console.error("Error in handleQuery:", err);
+    res.status(500).send({ error: "An error occurred while searching for members." });
+  }
+};
+
+
 
 exports.searchFilters = async (req, res, next) => {
   try {
