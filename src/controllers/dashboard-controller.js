@@ -310,7 +310,11 @@ exports.getProjectById = async (req, res, next) => {
           },
         },
         user: true,
-        groupProject: true,
+        groupProject: {
+          include : {
+            user : true
+          }
+        },
         images: true,
       }
     });
@@ -487,54 +491,54 @@ exports.updateList = async (req, res, next) => {
 };
 
 exports.updateProject = async (req, res, next) => {
-    try {
-        const id = parseInt(req.params.id, 10);
-        const { projectName, images } = req.body;
+  try {
+    const id = parseInt(req.params.id, 10);
+    const { projectName, images } = req.body;
 
-        if (isNaN(id)) return next(createError(400, "Invalid project ID"));
+    if (isNaN(id)) return next(createError(400, "Invalid project ID"));
 
-        const updateData = { projectName };
+    const updateData = { projectName };
 
-        if (images && images.length > 0) {
-            updateData.images = {
-                upsert: images
-                    .filter((image) => image.id) 
-                    .map((image) => ({
-                        where: { id: image.id },
-                        update: {
-                            asset_id: image.asset_id,
-                            public_id: image.public_id,
-                            url: image.url,
-                            secure_url: image.secure_url,
-                        },
-                        create: {
-                            asset_id: image.asset_id,
-                            public_id: image.public_id,
-                            url: image.url,
-                            secure_url: image.secure_url,
-                        },
-                    })),
-                create: images
-                    .filter((image) => !image.id) 
-                    .map((image) => ({
-                        asset_id: image.asset_id,
-                        public_id: image.public_id,
-                        url: image.url,
-                        secure_url: image.secure_url,
-                    })),
-            };
-        }
-
-        const project = await prisma.project.update({
-            where: { id },
-            data: updateData,
-            include: { images: true },
-        });
-
-        res.status(200).json({ message: "Project updated successfully", project });
-    } catch (err) {
-        next(err);
+    if (images && images.length > 0) {
+      updateData.images = {
+        upsert: images
+          .filter((image) => image.id)
+          .map((image) => ({
+            where: { id: image.id },
+            update: {
+              asset_id: image.asset_id,
+              public_id: image.public_id,
+              url: image.url,
+              secure_url: image.secure_url,
+            },
+            create: {
+              asset_id: image.asset_id,
+              public_id: image.public_id,
+              url: image.url,
+              secure_url: image.secure_url,
+            },
+          })),
+        create: images
+          .filter((image) => !image.id)
+          .map((image) => ({
+            asset_id: image.asset_id,
+            public_id: image.public_id,
+            url: image.url,
+            secure_url: image.secure_url,
+          })),
+      };
     }
+
+    const project = await prisma.project.update({
+      where: { id },
+      data: updateData,
+      include: { images: true },
+    });
+
+    res.status(200).json({ message: "Project updated successfully", project });
+  } catch (err) {
+    next(err);
+  }
 };
 
 
@@ -630,6 +634,19 @@ exports.deleteMember = async (req, res, next) => {
     next(err);
   }
 };
+
+exports.deleteWebLink = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    await prisma.weblink.delete({
+      where: { id: +id },
+    });
+    res.status(204).send();
+  } catch (err) {
+    next(err);
+  }
+};
+
 //#endregion
 
 //#region  images section
