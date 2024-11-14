@@ -29,7 +29,7 @@ exports.createActivityLog = async (req, res, next) => {
 
 exports.createTask = async (req, res, next) => {
   try {
-    const { title, listId } = req.body;
+    const { title, listId ,} = req.body;
     const userId = req.user.id;
 
     if (!title || !listId) {
@@ -90,11 +90,11 @@ exports.createComment = async (req, res, next) => {
         task: { connect: { id: taskId } },
         user: { connect: { id: userId } },
       },
-      include:{
-        user : {
-          select : {
-            id : true,
-            displayName : true
+      include: {
+        user: {
+          select: {
+            id: true,
+            displayName: true
           }
         }
       }
@@ -108,7 +108,7 @@ exports.createComment = async (req, res, next) => {
 
 exports.addMember = async (req, res, next) => {
   try {
-    const { projectId, userId } = req.body;
+    const { projectId, userId, role } = req.body;
 
     console.log("check body", req.body);
 
@@ -116,7 +116,7 @@ exports.addMember = async (req, res, next) => {
       return next(createError(400, "Project ID and User ID are required"));
     }
 
-    const project = await prisma.groupProject.findUnique({
+    const project = await prisma.project.findUnique({
       where: { id: +projectId },
     });
 
@@ -124,12 +124,15 @@ exports.addMember = async (req, res, next) => {
       return next(createError(404, "Project not found"));
     }
 
-    await prisma.groupProject.update({
-      where: { id: +projectId },
+    await prisma.groupProject.create({
       data: {
         user: {
           connect: { id: userId },
         },
+        project: {
+          connect: { id: projectId }
+        },
+        role
       },
     });
 
@@ -211,6 +214,7 @@ exports.getTaskById = async (req, res, next) => {
             displayName: true,
           },
         },
+        images : true,
         assignee: {
           include: {
             user: {
@@ -233,14 +237,14 @@ exports.getTaskById = async (req, res, next) => {
           },
         },
         webLink: true,
-        images: true,
+       
 
       },
     });
     if (!task) {
       return createError(404, "Task not found");
     }
-
+    console.log(task.images)
     res.status(200).json(task);
   } catch (err) {
     next(err);
@@ -252,10 +256,10 @@ exports.getCommentByTaskId = async (req, res, next) => {
     console.log(req.params)
     const { id } = req.params;
     const comment = await prisma.comment.findMany({
-      where: { taskId : +id },
+      where: { taskId: +id },
       include: {
-        user:{
-          select:{
+        user: {
+          select: {
             id: true,
             displayName: true
           }
@@ -328,8 +332,8 @@ exports.getProjectById = async (req, res, next) => {
         },
         user: true,
         groupProject: {
-          include : {
-            user : true
+          include: {
+            user: true
           }
         },
         images: true,
@@ -430,6 +434,48 @@ exports.getAllUser = async (req, res, next) => {
   }
 };
 
+exports.getImageTask = async (req,res ,next ) => {
+  try {
+    const {taskId} = +req.params
+
+    const images = await prisma.image.findMany({
+      where : {
+        taskId : taskId
+      }, select : {
+        url: true
+      },
+
+      
+    })
+    
+    res.status(200).json(images)
+  } catch (err) {
+    next(err)
+  }
+}
+
+
+exports.getImageTask = async (req,res ,next ) => {
+  try {
+    const {taskId} = +req.params
+
+    const images = await prisma.image.findMany({
+      where : {
+        taskId : taskId
+      }, select : {
+        url: true
+      },
+
+      
+    })
+    
+    res.status(200).json(images)
+  } catch (err) {
+    next(err)
+  }
+}
+
+
 exports.getProjectMembers = async (req, res, next) => {
     try {
       const projectId = parseInt(req.params.id, 10); 
@@ -527,6 +573,8 @@ exports.updateTask = async (req, res, next) => {
     next(err);
   }
 };
+
+
 
 exports.updateList = async (req, res, next) => {
   try {
@@ -700,13 +748,23 @@ exports.deleteMember = async (req, res, next) => {
       return next(createError(400, "Project ID and User ID are required"));
     }
 
-    await prisma.groupProject.update({
-      where: { id: projectId },
-      data: {
-        user: {
-          disconnect: { id: userId },
-        },
-      },
+    // หา groupProject record ที่ตรงกับ projectId และ userId
+    const groupProject = await prisma.groupProject.findFirst({
+      where: {
+        projectId: projectId,
+        userId: userId
+      }
+    });
+
+    if (!groupProject) {
+      return next(createError(404, "Member not found in project"));
+    }
+
+    // ลบ record จาก GroupProject
+    await prisma.groupProject.delete({
+      where: {
+        id: groupProject.id
+      }
     });
 
     res.status(204).send();
@@ -727,6 +785,8 @@ exports.deleteWebLink = async (req, res, next) => {
   }
 };
 
+
+
 //#endregion
 
 //#region  images section
@@ -740,15 +800,53 @@ exports.uploadImages = async (req, res, next) => {
     res.send(result);
   } catch (err) {
     next(err);
-  }
+  } 
 };
+
+exports.createTaskImages = async (req,res,next) => {
+  try {
+    
+    const { images, taskId } =req.body;
+    console.log("check image body",images)
+
+    const data = images.map((image)=>{
+      return {
+        taskId : taskId,
+        asset_id : image.asset_id,
+        public_id : image.public_id,
+        url : image.url,
+        secure_url : image.secure_url,
+      }
+    })
+    const createdImages = await prisma.image.createMany({
+      data : data
+    })
+console.log(createdImages)
+    res.status(200).json(createdImages)
+  } catch (err) {
+    next(err)
+  }
+}
 
 exports.removeImages = async (req, res, next) => {
   try {
-    const { public_id } = req.body;
-    cloudinary.uploader.destroy(public_id, (result) => {
-      res.send("Remove image succesfull");
+    const { public_id, asset_id } = req.body;
+    
+    
+    await cloudinary.uploader.destroy(public_id, (result) => {
+      
     });
+
+    const deletedata = await prisma.image.delete({
+      where : {
+        asset_id : asset_id
+        
+      }
+    })
+  
+    console.log(deletedata)
+    res.status(204).send('delete success')
+
   } catch (err) {
     next(err);
   }

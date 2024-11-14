@@ -1,6 +1,6 @@
 const { express } = require("../model");
 const router = express.Router();
-const {assignUserToTask,getProjectMembers,getAllUser,getActivityLog,createComment,createList,createTask,addMember,getAllComments,getAllLists,getAllProjects,getAllTasks,getCommentByTaskId,getListById,getTaskById,getProjectById,updateList,updateProject,updateTask,deleteComment,deleteList,deleteMember,deleteProject,deleteTask,searchFilters, createActivityLog, getTodayTask,updateStatusMember,createWebLink,deleteWebLink} = require("../controllers");
+const {assignUserToTask,getProjectMembers,getImageTask,createTaskImages,getAllUser,getActivityLog,createComment,createList,createTask,addMember,getAllComments,getAllLists,getAllProjects,getAllTasks,getCommentByTaskId,getListById,getTaskById,getProjectById,updateList,updateProject,updateTask,deleteComment,deleteList,deleteMember,deleteProject,deleteTask,searchFilters, createActivityLog, getTodayTask,updateStatusMember,createWebLink,deleteWebLink, deleteImageTask} = require("../controllers");
 
 /// C
 
@@ -12,6 +12,8 @@ router.post("/search",searchFilters) // use this api for search
 router.post("/create-activitylog",createActivityLog) // create activity log
 router.post("/create-weblink", createWebLink) // create activity log
 router.post('/assign-user', assignUserToTask); // assign user to task
+router.post("/create-imagetask", createTaskImages)
+
 
 /// R 
 
@@ -27,6 +29,7 @@ router.get("/activitylog",getActivityLog) // get activity log
 router.get("/today-task",getTodayTask) // get activity log
 router.get("/getuser",getAllUser)
 router.get("/get-member/:id",getProjectMembers)
+router.get("/getimages", getImageTask)
 
 
 /// U
@@ -49,4 +52,5 @@ router.delete("/weblink/:id",deleteWebLink)
 
 
 
-module.exports = router;
+
+module.exports = router
