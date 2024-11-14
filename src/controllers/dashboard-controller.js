@@ -184,6 +184,7 @@ exports.getActivityLog = async (req, res, next) => {
       orderBy: {
         recentlyTime: "desc",
       },
+      take: 10
     });
 
     // const distinctProjects = [...new Set(activityLog.map(log => log.project.id))];
@@ -456,6 +457,63 @@ exports.getImageTask = async (req, res, next) => {
   }
 };
 
+exports.getImageTask = async (req,res ,next ) => {
+  try {
+    const {taskId} = +req.params
+
+    const images = await prisma.image.findMany({
+      where : {
+        taskId : taskId
+      }, select : {
+        url: true
+      },
+
+      
+    })
+    
+    res.status(200).json(images)
+  } catch (err) {
+    next(err)
+  }
+}
+
+
+exports.getProjectMembers = async (req, res, next) => {
+    try {
+      const projectId = parseInt(req.params.id, 10); 
+      if (isNaN(projectId)) {
+        return res.status(400).json({ error: "Invalid project ID" });
+      }
+  
+      const projectMembers = await prisma.groupProject.findMany({
+        where: { projectId },
+        include: {
+          user: {
+            select: {
+              id: true,
+              email: true,
+              displayName: true,
+              fullname: true,
+            },
+          },
+        },
+      });
+  
+      if (!projectMembers.length) {
+        return res.status(404).json({ error: "No members found for this project" });
+      }
+  
+      const members = projectMembers.map((member) => member.user);
+  
+      res.status(200).json(members);
+    } catch (err) {
+      console.error("Error fetching project members:", err);
+      next(err);
+    }
+  };
+  
+  
+
 //#endregion
 
 // U
@@ -598,6 +656,33 @@ exports.updateStatusMember = async (req, res, next) => {
     next(err);
   }
 };
+
+exports.assignUserToTask = async (req, res, next) => {
+    try {
+      const { taskId, userId } = +req.body;
+      
+      const existingAssignee = await prisma.assignee.findFirst({
+        where: { taskId },
+      });
+  
+      let assignee;
+      if (existingAssignee) {
+        assignee = await prisma.assignee.update({
+          where: { id: existingAssignee.id },
+          data: { userId },
+        });
+      } else {
+        assignee = await prisma.assignee.create({
+          data: { taskId, userId },
+        });
+      }
+      
+      res.status(200).json(assignee);
+    } catch (err) {
+      next(err);
+    }
+  };
+  
 
 //#endregion
 
