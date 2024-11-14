@@ -509,6 +509,31 @@ exports.getProjectMembers = async (req, res, next) => {
       next(err);
     }
   };
+
+  exports.getTaskAssignee = async (req, res, next) => {
+    try {
+      const {id} = req.params;
+      console.log("check taskId :",id)
+      const task = await prisma.task.findUnique({
+        where: { 
+            id: +id 
+        },include: {
+          assignee: true,
+          user: true,
+        }
+     
+      });
+  
+      if (!task || !task.assignee) {
+        return res.status(404).json({ error: "Assignee not found" });
+      }
+  
+      res.status(200).json(task.assignee);
+    } catch (error) {
+      console.error("Error fetching assignee:", error);
+      next(error);
+    }
+  };
   
   
 
