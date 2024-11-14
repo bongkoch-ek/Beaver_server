@@ -29,7 +29,7 @@ exports.createActivityLog = async (req, res, next) => {
 
 exports.createTask = async (req, res, next) => {
   try {
-    const { title, listId, } = req.body;
+    const { title, listId } = req.body;
     const userId = req.user.id;
 
     if (!title || !listId) {
@@ -94,10 +94,10 @@ exports.createComment = async (req, res, next) => {
         user: {
           select: {
             id: true,
-            displayName: true
-          }
-        }
-      }
+            displayName: true,
+          },
+        },
+      },
     });
 
     res.status(201).json(comments);
@@ -130,9 +130,9 @@ exports.addMember = async (req, res, next) => {
           connect: { id: userId },
         },
         project: {
-          connect: { id: projectId }
+          connect: { id: projectId },
         },
-        role
+        role,
       },
     });
 
@@ -149,7 +149,7 @@ exports.createWebLink = async (req, res, next) => {
     const activityLog = await prisma.weblink.create({
       data: {
         taskId: +taskId,
-        url
+        url,
       },
     });
     res.status(201).json(activityLog);
@@ -184,6 +184,7 @@ exports.getActivityLog = async (req, res, next) => {
       orderBy: {
         recentlyTime: "desc",
       },
+      take: 10
     });
 
     // const distinctProjects = [...new Set(activityLog.map(log => log.project.id))];
@@ -220,10 +221,10 @@ exports.getTaskById = async (req, res, next) => {
             user: {
               select: {
                 id: true,
-                displayName: true
-              }
-            }
-          }
+                displayName: true,
+              },
+            },
+          },
         },
         list: true,
         comment: {
@@ -237,14 +238,12 @@ exports.getTaskById = async (req, res, next) => {
           },
         },
         webLink: true,
-
-
       },
     });
     if (!task) {
       return createError(404, "Task not found");
     }
-    console.log(task.images)
+    console.log(task.images);
     res.status(200).json(task);
   } catch (err) {
     next(err);
@@ -253,7 +252,7 @@ exports.getTaskById = async (req, res, next) => {
 
 exports.getCommentByTaskId = async (req, res, next) => {
   try {
-    console.log(req.params)
+    console.log(req.params);
     const { id } = req.params;
     const comment = await prisma.comment.findMany({
       where: { taskId: +id },
@@ -261,10 +260,10 @@ exports.getCommentByTaskId = async (req, res, next) => {
         user: {
           select: {
             id: true,
-            displayName: true
-          }
-        }
-      }
+            displayName: true,
+          },
+        },
+      },
     });
 
     if (!comment) {
@@ -326,18 +325,23 @@ exports.getProjectById = async (req, res, next) => {
             task: {
               include: {
                 images: true,
-              }
-            }
+                assignee: {
+                  include: {
+                    user: true,
+                  },
+                },
+              },
+            },
           },
         },
         user: true,
         groupProject: {
           include: {
-            user: true
-          }
+            user: true,
+          },
         },
         images: true,
-      }
+      },
     });
     if (!project) {
       return createError(404, "Project not found");
@@ -455,6 +459,42 @@ exports.getImageTask = async (req, res, next) => {
 }
 
 
+exports.getProjectMembers = async (req, res, next) => {
+    try {
+      const projectId = parseInt(req.params.id, 10); 
+      if (isNaN(projectId)) {
+        return res.status(400).json({ error: "Invalid project ID" });
+      }
+  
+      const projectMembers = await prisma.groupProject.findMany({
+        where: { projectId },
+        include: {
+          user: {
+            select: {
+              id: true,
+              email: true,
+              displayName: true,
+              fullname: true,
+            },
+          },
+        },
+      });
+  
+      if (!projectMembers.length) {
+        return res.status(404).json({ error: "No members found for this project" });
+      }
+  
+      const members = projectMembers.map((member) => member.user);
+  
+      res.status(200).json(members);
+    } catch (err) {
+      console.error("Error fetching project members:", err);
+      next(err);
+    }
+  };
+  
+  
+
 //#endregion
 
 // U
@@ -483,18 +523,18 @@ exports.updateTask = async (req, res, next) => {
         user: {
           select: {
             id: true,
-            displayName: true
-          }
+            displayName: true,
+          },
         },
         assignee: {
           include: {
             user: {
               select: {
                 id: true,
-                displayName: true
-              }
-            }
-          }
+                displayName: true,
+              },
+            },
+          },
         },
         list: true,
         comment: {
@@ -502,13 +542,13 @@ exports.updateTask = async (req, res, next) => {
             user: {
               select: {
                 id: true,
-                displayName: true
-              }
-            }
-          }
+                displayName: true,
+              },
+            },
+          },
         },
-        webLink: true
-      }
+        webLink: true,
+      },
     });
 
     res.status(200).json(task);
@@ -516,8 +556,6 @@ exports.updateTask = async (req, res, next) => {
     next(err);
   }
 };
-
-
 
 exports.updateList = async (req, res, next) => {
   try {
@@ -584,7 +622,6 @@ exports.updateProject = async (req, res, next) => {
   }
 };
 
-
 exports.updateStatusMember = async (req, res, next) => {
   try {
     const { id } = req.params;
@@ -617,7 +654,32 @@ exports.updateStatusMember = async (req, res, next) => {
   }
 };
 
-
+exports.assignUserToTask = async (req, res, next) => {
+    try {
+      const { taskId, userId } = +req.body;
+      
+      const existingAssignee = await prisma.assignee.findFirst({
+        where: { taskId },
+      });
+  
+      let assignee;
+      if (existingAssignee) {
+        assignee = await prisma.assignee.update({
+          where: { id: existingAssignee.id },
+          data: { userId },
+        });
+      } else {
+        assignee = await prisma.assignee.create({
+          data: { taskId, userId },
+        });
+      }
+      
+      res.status(200).json(assignee);
+    } catch (err) {
+      next(err);
+    }
+  };
+  
 
 //#endregion
 
@@ -686,8 +748,8 @@ exports.deleteMember = async (req, res, next) => {
     const groupProject = await prisma.groupProject.findFirst({
       where: {
         projectId: projectId,
-        userId: userId
-      }
+        userId: userId,
+      },
     });
 
     if (!groupProject) {
@@ -697,8 +759,8 @@ exports.deleteMember = async (req, res, next) => {
     // ลบ record จาก GroupProject
     await prisma.groupProject.delete({
       where: {
-        id: groupProject.id
-      }
+        id: groupProject.id,
+      },
     });
 
     res.status(204).send();
@@ -719,8 +781,6 @@ exports.deleteWebLink = async (req, res, next) => {
   }
 };
 
-
-
 //#endregion
 
 //#region  images section
@@ -739,9 +799,8 @@ exports.uploadImages = async (req, res, next) => {
 
 exports.createTaskImages = async (req, res, next) => {
   try {
-
     const { images, taskId } = req.body;
-    console.log("check image body", images)
+    console.log("check image body", images);
 
     const data = images.map((image) => {
       return {
@@ -750,37 +809,32 @@ exports.createTaskImages = async (req, res, next) => {
         public_id: image.public_id,
         url: image.url,
         secure_url: image.secure_url,
-      }
-    })
+      };
+    });
     const createdImages = await prisma.image.createMany({
-      data: data
-    })
-    console.log(createdImages)
-    res.status(200).json(createdImages)
+      data: data,
+    });
+    console.log(createdImages);
+    res.status(200).json(createdImages);
   } catch (err) {
-    next(err)
+    next(err);
   }
-}
+};
 
 exports.removeImages = async (req, res, next) => {
   try {
     const { public_id, asset_id } = req.body;
 
-
-    await cloudinary.uploader.destroy(public_id, (result) => {
-
-    });
+    await cloudinary.uploader.destroy(public_id, (result) => {});
 
     const deletedata = await prisma.image.delete({
       where: {
-        asset_id: asset_id
+        asset_id: asset_id,
+      },
+    });
 
-      }
-    })
-
-    console.log(deletedata)
-    res.status(204).send('delete success')
-
+    console.log(deletedata);
+    res.status(204).send("delete success");
   } catch (err) {
     next(err);
   }
@@ -821,7 +875,9 @@ const handleQuery = async (req, res, query) => {
     res.send(member);
   } catch (err) {
     console.error("Error in handleQuery:", err);
-    res.status(500).send({ error: "An error occurred while searching for members." });
+    res
+      .status(500)
+      .send({ error: "An error occurred while searching for members." });
   }
 };
 
