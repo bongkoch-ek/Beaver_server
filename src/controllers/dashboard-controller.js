@@ -184,6 +184,7 @@ exports.getActivityLog = async (req, res, next) => {
       orderBy: {
         recentlyTime: "desc",
       },
+      take: 10
     });
 
     // const distinctProjects = [...new Set(activityLog.map(log => log.project.id))];
