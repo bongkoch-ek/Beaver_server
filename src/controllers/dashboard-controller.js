@@ -636,13 +636,23 @@ exports.deleteMember = async (req, res, next) => {
       return next(createError(400, "Project ID and User ID are required"));
     }
 
-    await prisma.groupProject.update({
-      where: { id: projectId },
-      data: {
-        user: {
-          disconnect: { id: userId },
-        },
-      },
+    // หา groupProject record ที่ตรงกับ projectId และ userId
+    const groupProject = await prisma.groupProject.findFirst({
+      where: {
+        projectId: projectId,
+        userId: userId
+      }
+    });
+
+    if (!groupProject) {
+      return next(createError(404, "Member not found in project"));
+    }
+
+    // ลบ record จาก GroupProject
+    await prisma.groupProject.delete({
+      where: {
+        id: groupProject.id
+      }
     });
 
     res.status(204).send();
