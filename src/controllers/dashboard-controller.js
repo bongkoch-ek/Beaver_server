@@ -440,37 +440,18 @@ exports.getAllUser = async (req, res, next) => {
 
 exports.getImageTask = async (req, res, next) => {
   try {
-    const { taskId } = +req.params;
+    const { taskId } = +req.params
 
     const images = await prisma.image.findMany({
       where: {
-        taskId: taskId,
-      },
-      select: {
-        url: true,
-      },
-    });
-
-    res.status(200).json(images);
-  } catch (err) {
-    next(err);
-  }
-};
-
-exports.getImageTask = async (req,res ,next ) => {
-  try {
-    const {taskId} = +req.params
-
-    const images = await prisma.image.findMany({
-      where : {
-        taskId : taskId
-      }, select : {
+        taskId: taskId
+      }, select: {
         url: true
       },
 
-      
+
     })
-    
+
     res.status(200).json(images)
   } catch (err) {
     next(err)
@@ -643,10 +624,26 @@ exports.updateProject = async (req, res, next) => {
 
 exports.updateStatusMember = async (req, res, next) => {
   try {
-    const { id } = +req.params.id;
-    // const { status } = req.body;
+    const { id } = req.params;
+    const userId = req.user.id;
+    console.log(req.params)
+    const isMember = await prisma.groupProject.findFirst({
+      where: {
+        projectId: +id,
+        userId,
+      }
+    })
+
+    if(!isMember)
+      createError(401, "cannot join this project")
+
+    if(isMember.status == "ACTIVE")
+      createError(400, "You already in this project")
+
     const member = await prisma.groupProject.update({
-      where: { id },
+      where: {
+        id: isMember.id
+      },
       data: {
         status: "ACTIVE",
       },
