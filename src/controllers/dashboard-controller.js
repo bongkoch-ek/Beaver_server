@@ -90,11 +90,11 @@ exports.createComment = async (req, res, next) => {
         task: { connect: { id: taskId } },
         user: { connect: { id: userId } },
       },
-      include:{
-        user : {
-          select : {
-            id : true,
-            displayName : true
+      include: {
+        user: {
+          select: {
+            id: true,
+            displayName: true
           }
         }
       }
@@ -108,7 +108,7 @@ exports.createComment = async (req, res, next) => {
 
 exports.addMember = async (req, res, next) => {
   try {
-    const { projectId, userId } = req.body;
+    const { projectId, userId, role } = req.body;
 
     console.log("check body", req.body);
 
@@ -116,7 +116,7 @@ exports.addMember = async (req, res, next) => {
       return next(createError(400, "Project ID and User ID are required"));
     }
 
-    const project = await prisma.groupProject.findUnique({
+    const project = await prisma.project.findUnique({
       where: { id: +projectId },
     });
 
@@ -124,12 +124,15 @@ exports.addMember = async (req, res, next) => {
       return next(createError(404, "Project not found"));
     }
 
-    await prisma.groupProject.update({
-      where: { id: +projectId },
+    await prisma.groupProject.create({
       data: {
         user: {
           connect: { id: userId },
         },
+        project: {
+          connect: { id: projectId }
+        },
+        role
       },
     });
 
@@ -253,10 +256,10 @@ exports.getCommentByTaskId = async (req, res, next) => {
     console.log(req.params)
     const { id } = req.params;
     const comment = await prisma.comment.findMany({
-      where: { taskId : +id },
+      where: { taskId: +id },
       include: {
-        user:{
-          select:{
+        user: {
+          select: {
             id: true,
             displayName: true
           }
@@ -329,8 +332,8 @@ exports.getProjectById = async (req, res, next) => {
         },
         user: true,
         groupProject: {
-          include : {
-            user : true
+          include: {
+            user: true
           }
         },
         images: true,
