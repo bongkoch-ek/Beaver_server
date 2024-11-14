@@ -24,6 +24,11 @@ io.on("connection", (socket) => {
         socket.broadcast.emit("editCard", updatedCard);
     });
 
+    socket.on("comment", (comment) => {
+        console.log(comment, "test comment")
+        socket.broadcast.emit("comment_message", comment)
+    })
+
     socket.on("disconnect", () => {
         console.log("User disconnected");
     });

@@ -77,22 +77,30 @@ exports.createList = async (req, res, next) => {
 
 exports.createComment = async (req, res, next) => {
   try {
-    const { content, taskId } = req.body;
+    const { comment, taskId } = req.body;
     const userId = req.user.id;
 
-    if (!content || !taskId) {
+    if (!comment || !taskId) {
       return createError(400, "Content and Task ID are required");
     }
 
-    const comment = await prisma.comment.create({
+    const comments = await prisma.comment.create({
       data: {
-        content,
+        comment,
         task: { connect: { id: taskId } },
-        creator: { connect: { id: userId } },
+        user: { connect: { id: userId } },
       },
+      include:{
+        user : {
+          select : {
+            id : true,
+            displayName : true
+          }
+        }
+      }
     });
 
-    res.status(201).json(comment);
+    res.status(201).json(comments);
   } catch (err) {
     next(err);
   }
@@ -240,11 +248,20 @@ exports.getTaskById = async (req, res, next) => {
   }
 };
 
-exports.getCommentById = async (req, res, next) => {
+exports.getCommentByTaskId = async (req, res, next) => {
   try {
+    console.log(req.params)
     const { id } = req.params;
-    const comment = await prisma.comment.findUnique({
-      where: { id },
+    const comment = await prisma.comment.findMany({
+      where: { taskId : +id },
+      include: {
+        user:{
+          select:{
+            id: true,
+            displayName: true
+          }
+        }
+      }
     });
 
     if (!comment) {
@@ -396,7 +413,7 @@ exports.getTodayTask = async (req, res, next) => {
   } catch (err) {
     next(err);
   }
-}
+};
 
 exports.getAllUser = async (req, res, next) => {
   try {
@@ -503,7 +520,7 @@ exports.updateList = async (req, res, next) => {
   try {
     const { id } = req.params;
     const list = await prisma.list.update({
-      where: { id },
+      where: { id: Number(id) },
       data: req.body,
     });
 
@@ -603,7 +620,7 @@ exports.deleteTask = async (req, res, next) => {
   try {
     const { id } = req.params;
     await prisma.task.delete({
-      where: { id },
+      where: { id: Number(id) },
     });
     res.status(204).send();
   } catch (err) {
@@ -646,13 +663,23 @@ exports.deleteMember = async (req, res, next) => {
       return next(createError(400, "Project ID and User ID are required"));
     }
 
-    await prisma.groupProject.update({
-      where: { id: projectId },
-      data: {
-        user: {
-          disconnect: { id: userId },
-        },
-      },
+    // หา groupProject record ที่ตรงกับ projectId และ userId
+    const groupProject = await prisma.groupProject.findFirst({
+      where: {
+        projectId: projectId,
+        userId: userId
+      }
+    });
+
+    if (!groupProject) {
+      return next(createError(404, "Member not found in project"));
+    }
+
+    // ลบ record จาก GroupProject
+    await prisma.groupProject.delete({
+      where: {
+        id: groupProject.id
+      }
     });
 
     res.status(204).send();
