@@ -77,22 +77,30 @@ exports.createList = async (req, res, next) => {
 
 exports.createComment = async (req, res, next) => {
   try {
-    const { content, taskId } = req.body;
+    const { comment, taskId } = req.body;
     const userId = req.user.id;
 
-    if (!content || !taskId) {
+    if (!comment || !taskId) {
       return createError(400, "Content and Task ID are required");
     }
 
-    const comment = await prisma.comment.create({
+    const comments = await prisma.comment.create({
       data: {
-        content,
+        comment,
         task: { connect: { id: taskId } },
-        creator: { connect: { id: userId } },
+        user: { connect: { id: userId } },
       },
+      include:{
+        user : {
+          select : {
+            id : true,
+            displayName : true
+          }
+        }
+      }
     });
 
-    res.status(201).json(comment);
+    res.status(201).json(comments);
   } catch (err) {
     next(err);
   }
@@ -239,11 +247,20 @@ exports.getTaskById = async (req, res, next) => {
   }
 };
 
-exports.getCommentById = async (req, res, next) => {
+exports.getCommentByTaskId = async (req, res, next) => {
   try {
+    console.log(req.params)
     const { id } = req.params;
-    const comment = await prisma.comment.findUnique({
-      where: { id },
+    const comment = await prisma.comment.findMany({
+      where: { taskId : +id },
+      include: {
+        user:{
+          select:{
+            id: true,
+            displayName: true
+          }
+        }
+      }
     });
 
     if (!comment) {
