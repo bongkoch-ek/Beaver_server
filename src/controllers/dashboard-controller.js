@@ -29,7 +29,7 @@ exports.createActivityLog = async (req, res, next) => {
 
 exports.createTask = async (req, res, next) => {
   try {
-    const { title, listId ,} = req.body;
+    const { title, listId, } = req.body;
     const userId = req.user.id;
 
     if (!title || !listId) {
@@ -214,7 +214,7 @@ exports.getTaskById = async (req, res, next) => {
             displayName: true,
           },
         },
-        images : true,
+        images: true,
         assignee: {
           include: {
             user: {
@@ -237,7 +237,7 @@ exports.getTaskById = async (req, res, next) => {
           },
         },
         webLink: true,
-       
+
 
       },
     });
@@ -434,20 +434,20 @@ exports.getAllUser = async (req, res, next) => {
   }
 };
 
-exports.getImageTask = async (req,res ,next ) => {
+exports.getImageTask = async (req, res, next) => {
   try {
-    const {taskId} = +req.params
+    const { taskId } = +req.params
 
     const images = await prisma.image.findMany({
-      where : {
-        taskId : taskId
-      }, select : {
+      where: {
+        taskId: taskId
+      }, select: {
         url: true
       },
 
-      
+
     })
-    
+
     res.status(200).json(images)
   } catch (err) {
     next(err)
@@ -587,10 +587,26 @@ exports.updateProject = async (req, res, next) => {
 
 exports.updateStatusMember = async (req, res, next) => {
   try {
-    const { id } = +req.params.id;
-    // const { status } = req.body;
+    const { id } = req.params;
+    const userId = req.user.id;
+    console.log(req.params)
+    const isMember = await prisma.groupProject.findFirst({
+      where: {
+        projectId: +id,
+        userId,
+      }
+    })
+
+    if(!isMember)
+      createError(401, "cannot join this project")
+
+    if(isMember.status == "ACTIVE")
+      createError(400, "You already in this project")
+
     const member = await prisma.groupProject.update({
-      where: { id },
+      where: {
+        id: isMember.id
+      },
       data: {
         status: "ACTIVE",
       },
@@ -718,28 +734,28 @@ exports.uploadImages = async (req, res, next) => {
     res.send(result);
   } catch (err) {
     next(err);
-  } 
+  }
 };
 
-exports.createTaskImages = async (req,res,next) => {
+exports.createTaskImages = async (req, res, next) => {
   try {
-    
-    const { images, taskId } =req.body;
-    console.log("check image body",images)
 
-    const data = images.map((image)=>{
+    const { images, taskId } = req.body;
+    console.log("check image body", images)
+
+    const data = images.map((image) => {
       return {
-        taskId : taskId,
-        asset_id : image.asset_id,
-        public_id : image.public_id,
-        url : image.url,
-        secure_url : image.secure_url,
+        taskId: taskId,
+        asset_id: image.asset_id,
+        public_id: image.public_id,
+        url: image.url,
+        secure_url: image.secure_url,
       }
     })
     const createdImages = await prisma.image.createMany({
-      data : data
+      data: data
     })
-console.log(createdImages)
+    console.log(createdImages)
     res.status(200).json(createdImages)
   } catch (err) {
     next(err)
@@ -749,19 +765,19 @@ console.log(createdImages)
 exports.removeImages = async (req, res, next) => {
   try {
     const { public_id, asset_id } = req.body;
-    
-    
+
+
     await cloudinary.uploader.destroy(public_id, (result) => {
-      
+
     });
 
     const deletedata = await prisma.image.delete({
-      where : {
-        asset_id : asset_id
-        
+      where: {
+        asset_id: asset_id
+
       }
     })
-  
+
     console.log(deletedata)
     res.status(204).send('delete success')
 
