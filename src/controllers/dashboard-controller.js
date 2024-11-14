@@ -29,7 +29,7 @@ exports.createActivityLog = async (req, res, next) => {
 
 exports.createTask = async (req, res, next) => {
   try {
-    const { title, listId } = req.body;
+    const { title, listId ,} = req.body;
     const userId = req.user.id;
 
     if (!title || !listId) {
@@ -211,6 +211,7 @@ exports.getTaskById = async (req, res, next) => {
             displayName: true,
           },
         },
+        images : true,
         assignee: {
           include: {
             user: {
@@ -233,14 +234,14 @@ exports.getTaskById = async (req, res, next) => {
           },
         },
         webLink: true,
-        images: true,
+       
 
       },
     });
     if (!task) {
       return createError(404, "Task not found");
     }
-
+    console.log(task.images)
     res.status(200).json(task);
   } catch (err) {
     next(err);
@@ -430,6 +431,27 @@ exports.getAllUser = async (req, res, next) => {
   }
 };
 
+exports.getImageTask = async (req,res ,next ) => {
+  try {
+    const {taskId} = +req.params
+
+    const images = await prisma.image.findMany({
+      where : {
+        taskId : taskId
+      }, select : {
+        url: true
+      },
+
+      
+    })
+    
+    res.status(200).json(images)
+  } catch (err) {
+    next(err)
+  }
+}
+
+
 //#endregion
 
 // U
@@ -491,6 +513,8 @@ exports.updateTask = async (req, res, next) => {
     next(err);
   }
 };
+
+
 
 exports.updateList = async (req, res, next) => {
   try {
@@ -573,6 +597,9 @@ exports.updateStatusMember = async (req, res, next) => {
     next(err);
   }
 };
+
+
+
 //#endregion
 
 // D
@@ -673,6 +700,8 @@ exports.deleteWebLink = async (req, res, next) => {
   }
 };
 
+
+
 //#endregion
 
 //#region  images section
@@ -686,15 +715,53 @@ exports.uploadImages = async (req, res, next) => {
     res.send(result);
   } catch (err) {
     next(err);
-  }
+  } 
 };
+
+exports.createTaskImages = async (req,res,next) => {
+  try {
+    
+    const { images, taskId } =req.body;
+    console.log("check image body",images)
+
+    const data = images.map((image)=>{
+      return {
+        taskId : taskId,
+        asset_id : image.asset_id,
+        public_id : image.public_id,
+        url : image.url,
+        secure_url : image.secure_url,
+      }
+    })
+    const createdImages = await prisma.image.createMany({
+      data : data
+    })
+console.log(createdImages)
+    res.status(200).json(createdImages)
+  } catch (err) {
+    next(err)
+  }
+}
 
 exports.removeImages = async (req, res, next) => {
   try {
-    const { public_id } = req.body;
-    cloudinary.uploader.destroy(public_id, (result) => {
-      res.send("Remove image succesfull");
+    const { public_id, asset_id } = req.body;
+    
+    
+    await cloudinary.uploader.destroy(public_id, (result) => {
+      
     });
+
+    const deletedata = await prisma.image.delete({
+      where : {
+        asset_id : asset_id
+        
+      }
+    })
+  
+    console.log(deletedata)
+    res.status(204).send('delete success')
+
   } catch (err) {
     next(err);
   }
