@@ -203,6 +203,7 @@ exports.getTaskById = async (req, res, next) => {
             displayName: true,
           },
         },
+        images : true,
         assignee: {
           include: {
             user: {
@@ -225,14 +226,14 @@ exports.getTaskById = async (req, res, next) => {
           },
         },
         webLink: true,
-        images: true,
+       
 
       },
     });
     if (!task) {
       return createError(404, "Task not found");
     }
-
+    console.log(task.images)
     res.status(200).json(task);
   } catch (err) {
     next(err);
@@ -413,6 +414,26 @@ exports.getAllUser = async (req, res, next) => {
   }
 };
 
+exports.getImageTask = async (req,res ,next ) => {
+  try {
+    const {taskId} = +req.params
+
+    const images = await prisma.image.findMany({
+      where : {
+        taskId : taskId
+      }, select : {
+        url: true
+      },
+
+      
+    })
+    
+    res.status(200).json(images)
+  } catch (err) {
+    next(err)
+  }
+}
+
 
 //#endregion
 
@@ -559,6 +580,9 @@ exports.updateStatusMember = async (req, res, next) => {
     next(err);
   }
 };
+
+
+
 //#endregion
 
 // D
@@ -649,6 +673,8 @@ exports.deleteWebLink = async (req, res, next) => {
   }
 };
 
+
+
 //#endregion
 
 //#region  images section
@@ -670,7 +696,7 @@ exports.createTaskImages = async (req,res,next) => {
     
     const { images, taskId } =req.body;
     console.log("check image body",images)
-    
+
     const data = images.map((image)=>{
       return {
         taskId : taskId,
@@ -683,7 +709,7 @@ exports.createTaskImages = async (req,res,next) => {
     const createdImages = await prisma.image.createMany({
       data : data
     })
-
+console.log(createdImages)
     res.status(200).json(createdImages)
   } catch (err) {
     next(err)
@@ -692,10 +718,23 @@ exports.createTaskImages = async (req,res,next) => {
 
 exports.removeImages = async (req, res, next) => {
   try {
-    const { public_id } = req.body;
-    cloudinary.uploader.destroy(public_id, (result) => {
-      res.send("Remove image succesfull");
+    const { public_id, asset_id } = req.body;
+    
+    
+    await cloudinary.uploader.destroy(public_id, (result) => {
+      
     });
+
+    const deletedata = await prisma.image.delete({
+      where : {
+        asset_id : asset_id
+        
+      }
+    })
+  
+    console.log(deletedata)
+    res.status(204).send('delete success')
+
   } catch (err) {
     next(err);
   }

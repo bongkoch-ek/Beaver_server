@@ -1,6 +1,6 @@
 const { express } = require("../model");
 const router = express.Router();
-const {createTaskImages,getAllUser,getActivityLog,createComment,createList,createTask,addMember,getAllComments,getAllLists,getAllProjects,getAllTasks,getCommentById,getListById,getTaskById,getProjectById,updateList,updateProject,updateTask,deleteComment,deleteList,deleteMember,deleteProject,deleteTask,searchFilters, createActivityLog, getTodayTask,updateStatusMember,createWebLink,deleteWebLink} = require("../controllers");
+const {getImageTask,createTaskImages,getAllUser,getActivityLog,createComment,createList,createTask,addMember,getAllComments,getAllLists,getAllProjects,getAllTasks,getCommentById,getListById,getTaskById,getProjectById,updateList,updateProject,updateTask,deleteComment,deleteList,deleteMember,deleteProject,deleteTask,searchFilters, createActivityLog, getTodayTask,updateStatusMember,createWebLink,deleteWebLink, deleteImageTask} = require("../controllers");
 
 /// C
 
@@ -27,6 +27,7 @@ router.get("/project/:id",getProjectById)  // get project by id
 router.get("/activitylog",getActivityLog) // get activity log
 router.get("/today-task",getTodayTask) // get activity log
 router.get("/getuser",getAllUser)
+router.get("/getimages", getImageTask)
 
 
 /// U
@@ -49,4 +50,5 @@ router.delete("/weblink/:id",deleteWebLink)
 
 
 
-module.exports = router;
+
+module.exports = router
