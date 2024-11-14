@@ -1,6 +1,6 @@
 const { express } = require("../model");
 const router = express.Router();
-const {getAllUser,getActivityLog,createComment,createList,createTask,addMember,getAllComments,getAllLists,getAllProjects,getAllTasks,getCommentById,getListById,getTaskById,getProjectById,updateList,updateProject,updateTask,deleteComment,deleteList,deleteMember,deleteProject,deleteTask,searchFilters, createActivityLog, getTodayTask,updateStatusMember,createWebLink,deleteWebLink} = require("../controllers");
+const {getAllUser,getActivityLog,createComment,createList,createTask,addMember,getAllComments,getAllLists,getAllProjects,getAllTasks,getCommentByTaskId,getListById,getTaskById,getProjectById,updateList,updateProject,updateTask,deleteComment,deleteList,deleteMember,deleteProject,deleteTask,searchFilters, createActivityLog, getTodayTask,updateStatusMember,createWebLink,deleteWebLink} = require("../controllers");
 
 /// C
 
@@ -19,7 +19,7 @@ router.get("/comment",getAllComments)  // get list all comment
 router.get("/project",getAllProjects)  // get all project -> include list -> include task ****
 router.get("/list",getAllLists)  // get all list 
 router.get("/task",getAllTasks)  // get all task 
-router.get("/comment/:id",getCommentById)  // get comment by id
+router.get("/comment/:id",getCommentByTaskId)  // get comment by id
 router.get("/list/:id",getListById)  // get list by id
 router.get("/task/:id",getTaskById)  // get task by id
 router.get("/project/:id",getProjectById)  // get project by id
