@@ -177,9 +177,10 @@ exports.getActivityLog = async (req, res, next) => {
               include: {
                 task: true,
               },
-            },
+            }, images :true
           },
         },
+   
       },
       orderBy: {
         recentlyTime: "desc",
