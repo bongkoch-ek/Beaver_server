@@ -1,6 +1,6 @@
 const { express } = require("../model");
 const router = express.Router();
-const {getTaskAssignee,assignUserToTask,getProjectMembers,getImageTask,createTaskImages,getAllUser,getActivityLog,createComment,createList,createTask,addMember,getAllComments,getAllLists,getAllProjects,getAllTasks,getCommentByTaskId,getListById,getTaskById,getProjectById,updateList,updateProject,updateTask,deleteComment,deleteList,deleteMember,deleteProject,deleteTask,searchFilters, createActivityLog, getTodayTask,updateStatusMember,createWebLink,deleteWebLink, deleteImageTask} = require("../controllers");
+const {removeAssignee,updateAssignee,getTaskAssignee,assignUserToTask,getProjectMembers,getImageTask,createTaskImages,getAllUser,getActivityLog,createComment,createList,createTask,addMember,getAllComments,getAllLists,getAllProjects,getAllTasks,getCommentByTaskId,getListById,getTaskById,getProjectById,updateList,updateProject,updateTask,deleteComment,deleteList,deleteMember,deleteProject,deleteTask,searchFilters, createActivityLog, getTodayTask,updateStatusMember,createWebLink,deleteWebLink, deleteImageTask} = require("../controllers");
 
 /// C
 
@@ -13,6 +13,7 @@ router.post("/create-activitylog",createActivityLog) // create activity log
 router.post("/create-weblink", createWebLink) // create activity log
 router.post('/assign-user', assignUserToTask); // assign user to task
 router.post("/create-imagetask", createTaskImages) // create image in task 
+router.post("/remove-assignee",removeAssignee) // remove assignee
 
 
 /// R 
@@ -39,6 +40,7 @@ router.patch("/task/:id",updateTask)  // edit task
 router.patch("/list/:id",updateList)  // edit list
 router.patch("/project/:id",updateProject)  // edit project 
 router.patch("/status-member/:id",updateStatusMember)  // edit status member
+router.patch("/change-assignee/:id",updateAssignee)  // change assignee
 
 /// D
 
@@ -48,7 +50,6 @@ router.delete("/project/:id",deleteProject)
 router.delete("/comment/:id",deleteComment)  
 router.delete("/member",deleteMember)  // delete member by body parameter
 router.delete("/weblink/:id",deleteWebLink)
-// router.delete("/")
 
 
 
