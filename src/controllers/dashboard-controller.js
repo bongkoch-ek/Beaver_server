@@ -158,6 +158,39 @@ exports.createWebLink = async (req, res, next) => {
   }
 };
 
+exports.removeAssignee = async (req, res, next) => {
+  try {
+    const { taskId, userId } = req.body;
+
+    if (!taskId || !userId) {
+      return res.status(400).json({ error: "Task ID and User ID are required" });
+    }
+
+    const assignee = await prisma.assignee.findFirst({
+      where: {
+        taskId: +taskId,
+        userId: +userId,
+      },
+    });
+
+    if (!assignee) {
+      return res.status(404).json({ error: "Assignee not found" });
+    }
+
+    await prisma.assignee.delete({
+      where: {
+        id: assignee.id,
+      },
+    });
+
+    res.status(204).send(); 
+  } catch (err) {
+    console.error("Error removing assignee:", err);
+    next(err);
+  }
+};
+
+
 //#endregion
 
 // R
@@ -218,15 +251,15 @@ exports.getTaskById = async (req, res, next) => {
         },
         images: true,
         assignee: {
-          include: {
-            user: {
-              select: {
-                id: true,
-                displayName: true,
+            include: {
+              user: {
+                select: {
+                  id: true,
+                  displayName: true,
+                },
               },
             },
           },
-        },
         list: true,
         comment: {
           include: {
@@ -514,7 +547,7 @@ exports.getProjectMembers = async (req, res, next) => {
         return res.status(404).json({ error: "Assignee not found" });
       }
   
-      res.status(200).json(task.assignee);
+      res.status(200).json(task);
     } catch (error) {
       console.error("Error fetching assignee:", error);
       next(error);
@@ -527,6 +560,31 @@ exports.getProjectMembers = async (req, res, next) => {
 
 // U
 //#region update
+
+exports.updateAssignee = async (req,res,next) => {
+    try {
+            const {id} = req.params;
+            const {userId} = req.body;
+            const task = await prisma.task.update({
+                where: {
+                    id: +id
+                },
+                data: {
+                    assignee: {
+                        connect: {
+                            id: userId
+                        }
+                    }
+                }
+            })
+            res.status(200).json(task)
+        } catch (error) {
+            console.error("Error updating assignee:", error);
+            next(error);
+        }
+  }
+
+
 exports.updateTask = async (req, res, next) => {
   try {
     const { id } = req.params;
@@ -684,7 +742,7 @@ exports.updateStatusMember = async (req, res, next) => {
 
 exports.assignUserToTask = async (req, res, next) => {
     try {
-      const { taskId, userId } = +req.body;
+        const { taskId, userId } = req.body;
       
       const existingAssignee = await prisma.assignee.findFirst({
         where: { taskId },
@@ -808,6 +866,8 @@ exports.deleteWebLink = async (req, res, next) => {
     next(err);
   }
 };
+
+
 
 //#endregion
 
