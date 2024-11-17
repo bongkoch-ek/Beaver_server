@@ -49,7 +49,7 @@ exports.listUser = async (req, res, next) => {
 // Update user profile
 exports.updateProfile = async (req, res, next) => {
   try {
-    const { displayname, firstname, lastname, bio, phone } = req.body;
+    const { displayName, firstname, lastname, bio, phone } = req.body;
     const haveFile = Boolean(req.file);
 
     let uploadResult = {};
@@ -65,7 +65,7 @@ exports.updateProfile = async (req, res, next) => {
     const userId = req.user.id;
 
     const data = {
-      displayName: displayname,
+      displayName: displayName,
       fullname: `${firstname} ${lastname}`,
       bio: bio,
       phone: phone,
