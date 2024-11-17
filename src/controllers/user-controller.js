@@ -1,5 +1,8 @@
 const prisma = require("../configs/prisma");
 const createError = require("../utils/createError");
+const fs = require("fs/promises");
+const { cloudinary } = require("../model");
+const path = require("path");
 
 // Get a user by ID
 exports.getUser = async (req, res, next) => {
@@ -12,7 +15,7 @@ exports.getUser = async (req, res, next) => {
 
     const user = await prisma.user.findUnique({
       where: {
-        id: parseInt(id)
+        id: parseInt(id),
       },
     });
 
@@ -25,8 +28,6 @@ exports.getUser = async (req, res, next) => {
     next(err);
   }
 };
-
-
 
 // List all users
 exports.listUser = async (req, res, next) => {
@@ -48,24 +49,40 @@ exports.listUser = async (req, res, next) => {
 // Update user profile
 exports.updateProfile = async (req, res, next) => {
   try {
-    const { displayname, firstname, lastname, profileImage, bio, phone } =
-      req.body;
+    const { displayname, firstname, lastname, bio, phone } = req.body;
+    const haveFile = Boolean(req.file);
+
+    let uploadResult = {};
+    if (haveFile) {
+      uploadResult = await cloudinary.uploader.upload(req.file.path, {
+        overwrite: true,
+        public_id: path.parse(req.file.path).name,
+      });
+      fs.unlink(req.file.path);
+    }
+
     console.log("check body update :", req.body);
     const userId = req.user.id;
+
+    const data = {
+      displayName: displayname,
+      fullname: `${firstname} ${lastname}`,
+      bio: bio,
+      phone: phone,
+    };
+    if (haveFile) {
+      data.profileImage = uploadResult.secure_url;
+    }
+
     const user = await prisma.user.update({
       where: { id: userId },
-      data: {
-        displayName: displayname,
-        fullname: `${firstname} ${lastname}`,
-        bio: bio,
-        phone: phone,
-        profileImage: profileImage,
-      },
+      data: data,
     });
-    console.log("check user update :", user)
-    res
-      .status(200)
-      .json({ message: `Updated user ${user.displayName} successfully`, user: user });
+    console.log("check user update :", user);
+    res.status(200).json({
+      message: `Updated user ${user.displayName} successfully`,
+      user: user,
+    });
   } catch (err) {
     next(err);
   }
@@ -97,37 +114,51 @@ exports.createProject = async (req, res, next) => {
 
     console.log("check project name :", projectName);
 
-    
     const project = await prisma.project.create({
-        data: {
-          projectName,
-          userId,
-          images: {
-            create: images.map((image) => ({
-              asset_id: image.asset_id,
-              public_id: image.public_id,
-              url: image.url,
-              secure_url: image.secure_url,
-            })),
-          },
+      data: {
+        projectName,
+        userId,
+        images: {
+          create: images.map((image) => ({
+            asset_id: image.asset_id,
+            public_id: image.public_id,
+            url: image.url,
+            secure_url: image.secure_url,
+          })),
         },
-      });
+      },
+    });
 
     await prisma.groupProject.create({
       data: {
         userId: userId,
         projectId: project.id,
         role: "OWNER",
-        status: "ACTIVE"
-      }
+        status: "ACTIVE",
+      },
     });
 
     const list = await prisma.list.createMany({
       data: [
-        { title: "To do", projectId: project.id, userId: userId, status: "TODO" },
-        { title: "In Progress", projectId: project.id, userId: userId, status: "INPROGRESS" },
-        { title: "Done", projectId: project.id, userId: userId, status: "DONE" },
-      ]
+        {
+          title: "To do",
+          projectId: project.id,
+          userId: userId,
+          status: "TODO",
+        },
+        {
+          title: "In Progress",
+          projectId: project.id,
+          userId: userId,
+          status: "INPROGRESS",
+        },
+        {
+          title: "Done",
+          projectId: project.id,
+          userId: userId,
+          status: "DONE",
+        },
+      ],
     });
 
     const userResponse = {

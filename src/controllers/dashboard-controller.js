@@ -210,9 +210,10 @@ exports.getActivityLog = async (req, res, next) => {
               include: {
                 task: true,
               },
-            },
+            }, images :true
           },
         },
+   
       },
       orderBy: {
         recentlyTime: "desc",
@@ -421,9 +422,11 @@ exports.getAllProjects = async (req, res, next) => {
 exports.getTodayTask = async (req, res, next) => {
   try {
     const userId = req.user.id;
-    const today = new Date().toISOString().split("T")[0];
+    let today = new Date()
+    today.setDate(today.getDate() -1);
+    today = today.toISOString().split("T")[0];
     let tomorrow = new Date();
-    tomorrow.setDate(tomorrow.getDate() + 1);
+    tomorrow.setDate(tomorrow.getDate());
     tomorrow = tomorrow.toISOString().split("T")[0];
     const task = await prisma.task.findMany({
       where: {
